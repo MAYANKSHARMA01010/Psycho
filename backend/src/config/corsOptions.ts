@@ -3,7 +3,7 @@ import { env } from "./env";
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = [env.CLIENT_URL];
+    const allowedOrigins = [env.FRONTEND_LOCAL_URL, env.FRONTEND_SERVER_URL].filter(Boolean) as string[];
     
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.indexOf(origin) !== -1 || env.NODE_ENV === "development") {

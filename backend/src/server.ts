@@ -14,8 +14,8 @@ export class Server {
       RedisService.getInstance();
       
       // 3. Start Listening
-      const server = app.listen(env.PORT, () => {
-        LoggerService.info(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
+      const server = app.listen(env.SERVER_PORT, () => {
+        LoggerService.info(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.SERVER_PORT}`);
       });
 
       // 4. Graceful Shutdown

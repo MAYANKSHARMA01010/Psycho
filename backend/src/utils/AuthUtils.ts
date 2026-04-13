@@ -15,11 +15,11 @@ export class AuthUtils {
    * @param payload User data to include in token
    */
   public static generateTokens(payload: TokenPayload) {
-    const accessToken = jwt.sign(payload, env.JWT_SECRET, {
-      expiresIn: env.JWT_ACCESS_EXPIRES_IN as any,
+    const accessToken = jwt.sign(payload, env.JWT_SESSION_SECRET, {
+      expiresIn: env.JWT_SESSION_EXPIRES_IN as any,
     });
 
-    const refreshToken = jwt.sign(payload, env.JWT_SECRET, {
+    const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
     });
 
@@ -31,7 +31,15 @@ export class AuthUtils {
    * @param token JWT token string
    */
   public static verifyToken(token: string): TokenPayload {
-    return jwt.verify(token, env.JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, env.JWT_SESSION_SECRET) as TokenPayload;
+  }
+
+  /**
+   * Verify a refresh JWT token
+   * @param token JWT token string
+   */
+  public static verifyRefreshToken(token: string): TokenPayload {
+    return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload;
   }
 
   /**
