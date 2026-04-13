@@ -6,6 +6,7 @@ import { LogMiddleware } from "./middlewares/requestLogger";
 import { RateLimitMiddleware } from "./middlewares/rateLimiter";
 import { ErrorMiddleware } from "./middlewares/errorHandler";
 import { ApiResponse } from "./utils/ApiResponse";
+import { ApiError } from "./utils/ApiError";
 import { Routes } from "./interfaces/route.interface";
 
 export class App {
@@ -39,6 +40,18 @@ export class App {
   }
 
   private setRoutes(routes: Routes[]): void {
+    this.express.get("/", (req: Request, res: Response) => {
+      return ApiResponse.success(res, 200, "Zenora backend is running", {
+        name: "Zenora API",
+        version: "v1",
+        docs: "/api/v1/health",
+      });
+    });
+
+    this.express.get("/favicon.ico", (req: Request, res: Response) => {
+      return res.status(204).end();
+    });
+
     // 7. /api/v1/health route
     this.express.get("/api/v1/health", (req: Request, res: Response) => {
       return ApiResponse.success(res, 200, "MentalCare API is healthy", {
@@ -56,9 +69,7 @@ export class App {
   private setErrorHandlers(): void {
     // 9. 404 handler for unmatched routes
     this.express.use((req: Request, res: Response, next: NextFunction) => {
-      const error = new Error(`Route ${req.originalUrl} not found`);
-      (error as any).statusCode = 404;
-      next(error);
+      next(ApiError.notFound(`Route ${req.originalUrl}`));
     });
 
     // 10. Global errorHandler (must be last)
