@@ -6,15 +6,15 @@ import { LogMiddleware } from "./middlewares/requestLogger";
 import { RateLimitMiddleware } from "./middlewares/rateLimiter";
 import { ErrorMiddleware } from "./middlewares/errorHandler";
 import { ApiResponse } from "./utils/ApiResponse";
-import { authRouter } from "./routes/auth.routes";
+import { Routes } from "./interfaces/route.interface";
 
 export class App {
   public express: express.Application;
 
-  constructor() {
+  constructor(routes: Routes[]) {
     this.express = express();
     this.setMiddlewares();
-    this.setRoutes();
+    this.setRoutes(routes);
     this.setErrorHandlers();
   }
 
@@ -38,7 +38,7 @@ export class App {
     this.express.use(RateLimitMiddleware.handle());
   }
 
-  private setRoutes(): void {
+  private setRoutes(routes: Routes[]): void {
     // 7. /api/v1/health route
     this.express.get("/api/v1/health", (req: Request, res: Response) => {
       return ApiResponse.success(res, 200, "MentalCare API is healthy", {
@@ -48,8 +48,9 @@ export class App {
       });
     });
 
-    // 8. Mount auth router
-    this.express.use("/api/v1/auth", authRouter);
+    routes.forEach((route) => {
+      this.express.use(route.path, route.router);
+    });
   }
 
   private setErrorHandlers(): void {
@@ -67,4 +68,3 @@ export class App {
   }
 }
 
-export const app = new App().express;

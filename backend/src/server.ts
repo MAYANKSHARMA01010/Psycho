@@ -1,8 +1,11 @@
-import { app } from "./app";
+import { App } from "./app";
 import { env } from "./config/env";
 import { DatabaseService } from "./config/database";
 import { LoggerService } from "./utils/logger";
 import { RedisService } from "./config/redis";
+import AuthRoutes from "./routes/auth.routes";
+
+const app = new App([new AuthRoutes()]).express;
 
 export class Server {
   public static async start(): Promise<void> {
