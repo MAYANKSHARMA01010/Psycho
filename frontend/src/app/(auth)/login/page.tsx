@@ -1,12 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import type { AuthRole } from "@/context/AuthContext";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<AuthRole>("CLIENT");
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!email || !password) {
+      return;
+    }
+
+    login({ email, role });
+    router.push("/");
+  }
+
   return (
     <main className="min-h-screen bg-zinc-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold text-zinc-900 mb-6 text-center">Login</h1>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium text-zinc-700">
               Email
@@ -16,6 +39,8 @@ export default function LoginPage() {
               name="email"
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
             />
           </div>
@@ -29,6 +54,8 @@ export default function LoginPage() {
               name="password"
               type="password"
               placeholder="Enter password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
             />
           </div>
@@ -40,7 +67,8 @@ export default function LoginPage() {
             <select
               id="role"
               name="role"
-              defaultValue="CLIENT"
+              value={role}
+              onChange={(event) => setRole(event.target.value as AuthRole)}
               className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
             >
               <option value="CLIENT">CLIENT</option>
