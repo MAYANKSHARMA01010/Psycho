@@ -1,4 +1,5 @@
-import {PrismaClient} from "@prisma/client"
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { env } from "./env";
 import { logger } from "../utils/logger";
 
@@ -10,6 +11,7 @@ export class DatabaseService {
   public static async getInstance(): Promise<PrismaClient> {
     if (!this.instance) {
       this.instance = new PrismaClient({
+        adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
         log: env.NODE_ENV === "development" ? (["query", "error", "warn"] as any) : (["error"] as any),
       });
 
