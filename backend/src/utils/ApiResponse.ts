@@ -1,26 +1,39 @@
 import { Response } from "express";
 
-class ApiResponse {
-    static success(res: Response, message: string, data: Record<string, unknown> = {}) {
-        return res.status(200).json({
-            success: true,
-            message,
-            data,
-        });
-    }
-
-    static error(
-        res: Response,
-        message: string,
-        statusCode = 500,
-        errors: string[] = []
-    ) {
-        return res.status(statusCode).json({
-            success: false,
-            message,
-            errors,
-        });
-    }
+interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
-export default ApiResponse;
+export class ApiResponse<T> {
+  public success: boolean;
+  public statusCode: number;
+  public message: string;
+  public data: T | null;
+  public meta?: PaginationMeta;
+  public timestamp: string;
+  public requestId?: string;
+
+  constructor(
+    statusCode: number,
+    message = "Operation successful",
+    data: T | null = null,
+    meta?: PaginationMeta,
+    requestId?: string
+  ) {
+    this.success = statusCode < 400;
+    this.statusCode = statusCode;
+    this.message = message;
+    this.data = data;
+    this.meta = meta;
+    this.timestamp = new Date().toISOString();
+    this.requestId = requestId;
+  }
+
+  static success<T>(res: Response, statusCode = 200, message = "Operation successful", data: T | null = null, meta?: PaginationMeta) {
+    const response = new ApiResponse(statusCode, message, data, meta, res.locals.requestId);
+    return res.status(statusCode).json(response);
+  }
+}

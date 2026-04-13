@@ -1,16 +1,383 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+enum Role {
+  CLIENT
+  THERAPIST
+  ADMIN
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+  ONGOING
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum SessionType {
+  VIDEO
+  VOICE
+  CHAT
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum ComplaintStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum NotificationType {
+  SESSION_REMINDER
+  MEDICATION_REMINDER
+  AI_NUDGE
+  COMPLAINT_UPDATE
+  PAYMENT_UPDATE
+  CRISIS_ALERT
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+}
+
+enum CrisisLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// -----------------------------------------------------------------------------
+// MODELS
+// -----------------------------------------------------------------------------
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  phone           String?  @unique
+  passwordHash    String
+  role            Role
+  isActive        Boolean  @default(true)
+  isEmailVerified Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  client    Client?
+  therapist Therapist?
+  admin     Admin?
+  complaintsRaised Complaint[] @relation("ComplaintsRaised")
+  complaintsAgainst Complaint[] @relation("ComplaintsAgainst")
+  notifications      Notification[]
+  chatMessages       ChatMessage[]
+}
+
+model Client {
+  id               String   @id @default(uuid())
+  user             User     @relation(fields: [id], references: [id], onDelete: Cascade)
+  language         String   @default("en")
+  gender           String?
+  emergencyContact String?
+  dataVisibility   String   @default("private")
+
+  // Relations
+  sessions      Session[]
+  assessments   Assessment[]
+  payments      Payment[]
+  subscription  Subscription?
+  complaints    Complaint[]      @relation("ClientComplaints")
+  aiInteractions AIInteraction[]
+  notifications Notification[]    @relation("ClientNotifications")
+  ratings       Rating[]
+  prescriptions Prescription[]
+  treatmentPlans TreatmentPlan[]
+}
+
+model Therapist {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [id], references: [id], onDelete: Cascade)
+  licenseNumber   String   @unique
+  specialization  String
+  isVerified      Boolean  @default(false)
+  rating          Float    @default(0)
+  totalRatings    Int      @default(0)
+  workingHours    Json
+  bio             String?
+  experience      Int
+  bankAccountInfo Json?
+
+  // Relations
+  sessions      Session[]
+  prescriptions Prescription[]
+  complaints    Complaint[]   @relation("TherapistComplaints")
+  ratings       Rating[]
+  earnings      Earning[]
+  treatmentPlans TreatmentPlan[]
+  availabilitySlots AvailabilitySlot[]
+}
+
+model Admin {
+  id         String @id @default(uuid())
+  user       User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  adminLevel Int    @default(1)
+  department String?
+}
+
+model Session {
+  id                 String        @id @default(uuid())
+  clientId           String
+  therapistId        String
+  status             SessionStatus
+  type               SessionType
+  scheduledAt        DateTime
+  startedAt          DateTime?
+  endedAt            DateTime?
+  notes              String?
+  recordingUrl       String?
+  cancellationReason String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  // Relations
+  client        Client         @relation(fields: [clientId], references: [id])
+  therapist     Therapist      @relation(fields: [therapistId], references: [id])
+  payment       Payment?
+  aiInteraction AIInteraction?
+  rating        Rating?
+  earning       Earning?
+  chatMessages  ChatMessage[]
+
+  @@index([clientId, status])
+  @@index([therapistId, scheduledAt])
+}
+
+model Assessment {
+  id          String   @id @default(uuid())
+  clientId    String
+  responses   Json
+  score       Float
+  severity    String
+  completedAt DateTime
+  createdAt   DateTime @default(now())
+
+  // Relations
+  client        Client         @relation(fields: [clientId], references: [id])
+  treatmentPlan TreatmentPlan?
+}
+
+model TreatmentPlan {
+  id           String     @id @default(uuid())
+  clientId     String
+  therapistId  String
+  assessmentId String     @unique
+  goals        String
+  milestones   Json
+  status       String     @default("active")
+  startDate    DateTime
+  endDate      DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  client     Client     @relation(fields: [clientId], references: [id])
+  therapist  Therapist  @relation(fields: [therapistId], references: [id])
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  clientId         String
+  sessionId        String        @unique
+  amount           Float
+  currency         String        @default("INR")
+  status           PaymentStatus
+  method           String
+  transactionId    String?       @unique
+  gatewayResponse  Json?
+  refundReason     String?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  client  Client  @relation(fields: [clientId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
+}
+
+model Subscription {
+  id         String             @id @default(uuid())
+  clientId   String             @unique
+  planName   String
+  price      Float
+  currency   String             @default("INR")
+  status     SubscriptionStatus
+  autoRenew  Boolean            @default(true)
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id])
+}
+
+model Prescription {
+  id           String   @id @default(uuid())
+  therapistId  String
+  clientId     String
+  medications  Json
+  instructions String
+  pdfUrl       String?
+  issuedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relations
+  therapist Therapist @relation(fields: [therapistId], references: [id])
+  client    Client    @relation(fields: [clientId], references: [id])
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  raisedById  String
+  againstId   String
+  description String
+  status      ComplaintStatus @default(OPEN)
+  resolution  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // relations for tracking who raised and who is against
+  raisedBy User @relation("ComplaintsRaised", fields: [raisedById], references: [id])
+  against  User @relation("ComplaintsAgainst", fields: [againstId], references: [id])
+
+  // Explicit relations for Client/Therapist for easier filtering if needed
+  clientId    String?
+  therapistId String?
+  client      Client?    @relation("ClientComplaints", fields: [clientId], references: [id])
+  therapist   Therapist? @relation("TherapistComplaints", fields: [therapistId], references: [id])
+}
+
+model AIInteraction {
+  id          String       @id @default(uuid())
+  clientId    String
+  sessionId   String?      @unique
+  inputText   String
+  responseText String
+  moodScore   Float?
+  crisisFlag  Boolean      @default(false)
+  crisisLevel CrisisLevel?
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  client  Client   @relation(fields: [clientId], references: [id])
+  session Session? @relation(fields: [sessionId], references: [id])
+}
+
+model Notification {
+  id        String              @id @default(uuid())
+  userId    String
+  type      NotificationType
+  channel   NotificationChannel
+  title     String
+  message   String
+  isRead    Boolean             @default(false)
+  metadata  Json?
+  sentAt    DateTime            @default(now())
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id])
+  // Optional back-relation for specific client notifications if needed
+  clientId String?
+  client   Client? @relation("ClientNotifications", fields: [clientId], references: [id])
+
+  @@index([userId, isRead])
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  clientId    String
+  therapistId String
+  sessionId   String   @unique
+  score       Int      // 1-5
+  review      String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  client    Client    @relation(fields: [clientId], references: [id])
+  therapist Therapist @relation(fields: [therapistId], references: [id])
+  session   Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Earning {
+  id                 String    @id @default(uuid())
+  therapistId        String
+  sessionId          String    @unique
+  amount             Float
+  platformCommission Float
+  netAmount          Float
+  isPaid             Boolean   @default(false)
+  paidAt             DateTime?
+  createdAt          DateTime  @default(now())
+
+  // Relations
+  therapist Therapist @relation(fields: [therapistId], references: [id])
+  session   Session   @relation(fields: [sessionId], references: [id])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sessionId String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  // Relations
+  session  Session @relation(fields: [sessionId], references: [id])
+  sender   User    @relation(fields: [senderId], references: [id])
+
+  @@index([sessionId, createdAt])
+}
+
+model AvailabilitySlot {
+  id          String   @id @default(uuid())
+  therapistId String
+  startTime   DateTime
+  endTime     DateTime
+  isBooked    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  therapist Therapist @relation(fields: [therapistId], references: [id])
+
+  @@index([therapistId, startTime])
 }

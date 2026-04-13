@@ -1,41 +1,73 @@
-import express, { Application } from "express";
-import corsMiddleware from "./configs/cors";
-import RouteInterface from "./types/route.interface";
+import express, { Request, Response, NextFunction } from "express";
+import helmet from "helmet";
+import cors from "cors";
+import { corsOptions } from "./config/corsOptions";
+import { LogMiddleware } from "./middlewares/requestLogger";
+import { RateLimitMiddleware } from "./middlewares/rateLimiter";
+import { ErrorMiddleware } from "./middlewares/errorHandler";
+import { ApiResponse } from "./utils/ApiResponse";
 
-declare const process: {
-    env: Record<string, string | undefined>;
-};
+export class App {
+  public express: express.Application;
 
-class App {
-    public app: Application;
-    public port: number;
+  constructor() {
+    this.express = express();
+    this.setMiddlewares();
+    this.setRoutes();
+    this.setErrorHandlers();
+  }
 
-    constructor(routes: RouteInterface[]) {
-        this.app = express();
-        this.port = Number(process.env.SERVER_PORT || 5001);
+  private setMiddlewares(): void {
+    // 1. helmet()
+    this.express.use(helmet());
 
-        this.initializeMiddlewares();
-        this.initializeRoutes(routes);
-    }
+    // 2. cors(corsOptions)
+    this.express.use(cors(corsOptions));
 
-    public startServer() {
-        this.app.listen(this.port, () => {
-            console.log(`DEBUG: NODE_ENV = ${process.env.NODE_ENV}`);
-            console.log(`Local Backend URL: ${process.env.BACKEND_LOCAL_URL}`);
-            console.log(`Deployed Backend URL: ${process.env.BACKEND_SERVER_URL}`);
-        });
-    }
+    // 3. express.json({ limit: "10mb" })
+    this.express.use(express.json({ limit: "10mb" }));
 
-    private initializeMiddlewares() {
-        this.app.use(corsMiddleware);
-        this.app.use(express.json());
-    }
+    // 4. express.urlencoded({ extended: true })
+    this.express.use(express.urlencoded({ extended: true }));
 
-    private initializeRoutes(routes: RouteInterface[]) {
-        routes.forEach((route) => {
-            this.app.use(route.path, route.router);
-        });
-    }
+    // 5. requestLogger middleware
+    this.express.use(LogMiddleware.handle());
+
+    // 6. rateLimiter (100 req/15min per IP globally)
+    this.express.use(RateLimitMiddleware.handle());
+  }
+
+  private setRoutes(): void {
+    // 7. /api/v1/health route
+    this.express.get("/api/v1/health", (req: Request, res: Response) => {
+      return ApiResponse.success(res, 200, "MentalCare API is healthy", {
+        status: "ok",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // 8. All feature routers mounted under /api/v1/ (leave placeholders as comments)
+    /**
+     * Mount your routers here:
+     * this.express.use("/api/v1/auth", authRouter);
+     * ...
+     */
+  }
+
+  private setErrorHandlers(): void {
+    // 9. 404 handler for unmatched routes
+    this.express.use((req: Request, res: Response, next: NextFunction) => {
+      const error = new Error(`Route ${req.originalUrl} not found`);
+      (error as any).statusCode = 404;
+      next(error);
+    });
+
+    // 10. Global errorHandler (must be last)
+    this.express.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      ErrorMiddleware.handle(err, req, res, next);
+    });
+  }
 }
 
-export default App;
+export const app = new App().express;
