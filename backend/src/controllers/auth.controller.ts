@@ -52,6 +52,23 @@ export class AuthController {
     const data = await authService.me(req.user!.id);
     return ApiResponse.success(res, 200, "Current user fetched successfully", data);
   }
+
+  public async onboardingStatus(req: Request, res: Response) {
+    const data = await authService.getOnboardingStatus(req.user!.id);
+    return ApiResponse.success(res, 200, "Onboarding status fetched successfully", data);
+  }
+
+  public async completeOnboarding(req: Request, res: Response) {
+    const body = req.body as {
+      fullName?: string;
+      careGoal?: "stress" | "sleep" | "relationships" | "career" | "other";
+      sessionStyle?: "video" | "chat" | "mixed";
+      reminderChannel?: "email" | "whatsapp" | "none";
+    };
+
+    const data = await authService.completeOnboarding(req.user!.id, body);
+    return ApiResponse.success(res, 200, "Onboarding completed successfully", data);
+  }
 }
 
 export const authController = new AuthController();

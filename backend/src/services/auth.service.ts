@@ -11,6 +11,14 @@ export type AuthUserResponse = {
   name: string;
   email: string;
   role: Role;
+  onboardingCompleted: boolean;
+};
+
+type OnboardingProfile = {
+  fullName: string;
+  careGoal: "stress" | "sleep" | "relationships" | "career" | "other";
+  sessionStyle: "video" | "chat" | "mixed";
+  reminderChannel: "email" | "whatsapp" | "none";
 };
 
 type AuthUserRecord = {
@@ -19,6 +27,7 @@ type AuthUserRecord = {
   email: string;
   role: string;
   isActive: boolean;
+  onboardingCompleted: boolean;
 };
 
 type TokenPair = {
@@ -63,6 +72,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       role: user.role as Role,
+      onboardingCompleted: user.onboardingCompleted,
     };
   }
 
@@ -157,7 +167,7 @@ export class AuthService {
 
     let user = await db.user.findUnique({
       where: { email },
-      select: { id: true, name: true, email: true, role: true, isActive: true },
+      select: { id: true, name: true, email: true, role: true, isActive: true, onboardingCompleted: true },
     });
 
     if (!user) {
@@ -169,12 +179,14 @@ export class AuthService {
           role: statePayload.role,
           isEmailVerified: true,
         },
-        select: { id: true, name: true, email: true, role: true, isActive: true },
+        select: { id: true, name: true, email: true, role: true, isActive: true, onboardingCompleted: true },
       });
 
       await this.ensureRoleProfile(user.id, statePayload.role);
     } else if (user.role !== statePayload.role) {
-      throw ApiError.unauthorized("Selected role does not match your account");
+      throw ApiError.unauthorized(
+        `This account is registered as ${user.role}. Please continue as ${user.role}.`,
+      );
     }
 
     const tokensPair = this.issueTokens(user);
@@ -203,7 +215,7 @@ export class AuthService {
     const db = await DatabaseService.getInstance();
     const user = await db.user.findUnique({
       where: { email: this.normalizeEmail(email) },
-      select: { id: true, name: true, email: true, role: true, passwordHash: true, isActive: true },
+      select: { id: true, name: true, email: true, role: true, passwordHash: true, isActive: true, onboardingCompleted: true },
     });
 
     if (!user) {
@@ -215,7 +227,9 @@ export class AuthService {
     }
 
     if (selectedRole !== user.role) {
-      throw ApiError.unauthorized("Selected role does not match your account");
+      throw ApiError.unauthorized(
+        `This account is registered as ${user.role}. Please continue as ${user.role}.`,
+      );
     }
 
     const isPasswordValid = await AuthUtils.comparePassword(password, user.passwordHash);
@@ -240,7 +254,7 @@ export class AuthService {
     const db = await DatabaseService.getInstance();
     const user = await db.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, name: true, email: true, role: true, isActive: true },
+      select: { id: true, name: true, email: true, role: true, isActive: true, onboardingCompleted: true },
     });
 
     if (!user) {
@@ -349,7 +363,7 @@ export class AuthService {
     const db = await DatabaseService.getInstance();
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, role: true, isActive: true },
+      select: { id: true, name: true, email: true, role: true, isActive: true, onboardingCompleted: true },
     });
 
     if (!user) {
@@ -357,6 +371,89 @@ export class AuthService {
     }
 
     return { user: this.buildUserResponse(user) };
+  }
+
+  public async getOnboardingStatus(userId: string) {
+    const db = await DatabaseService.getInstance();
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        onboardingCompleted: true,
+        onboardingCompletedAt: true,
+        onboardingProfile: true,
+      },
+    });
+
+    if (!user) {
+      throw ApiError.unauthorized("User no longer exists");
+    }
+
+    return {
+      user: this.buildUserResponse(user),
+      onboardingCompleted: user.onboardingCompleted,
+      onboardingCompletedAt: user.onboardingCompletedAt,
+      onboardingProfile: user.onboardingProfile,
+    };
+  }
+
+  public async completeOnboarding(
+    userId: string,
+    payload: {
+      fullName?: string;
+      careGoal?: OnboardingProfile["careGoal"];
+      sessionStyle?: OnboardingProfile["sessionStyle"];
+      reminderChannel?: OnboardingProfile["reminderChannel"];
+    },
+  ) {
+    const { fullName, careGoal, sessionStyle, reminderChannel } = payload;
+
+    if (!fullName?.trim()) {
+      throw ApiError.badRequest("Full name is required");
+    }
+
+    if (!careGoal || !sessionStyle || !reminderChannel) {
+      throw ApiError.badRequest("Onboarding details are required");
+    }
+
+    const db = await DatabaseService.getInstance();
+    const profile: OnboardingProfile = {
+      fullName: fullName.trim(),
+      careGoal,
+      sessionStyle,
+      reminderChannel,
+    };
+
+    const user = await db.user.update({
+      where: { id: userId },
+      data: {
+        name: profile.fullName,
+        onboardingCompleted: true,
+        onboardingCompletedAt: new Date(),
+        onboardingProfile: profile,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        onboardingCompleted: true,
+        onboardingCompletedAt: true,
+        onboardingProfile: true,
+      },
+    });
+
+    return {
+      user: this.buildUserResponse(user),
+      onboardingCompleted: user.onboardingCompleted,
+      onboardingCompletedAt: user.onboardingCompletedAt,
+      onboardingProfile: user.onboardingProfile,
+    };
   }
 }
 

@@ -34,5 +34,17 @@ export default class AuthRoutes implements Routes {
       AuthMiddleware.authenticate,
       AsyncUtils.wrap(authController.me.bind(authController)),
     );
+
+    this.router.get(
+      "/onboarding/status",
+      AuthMiddleware.authenticate,
+      AsyncUtils.wrap(authController.onboardingStatus.bind(authController)),
+    );
+
+    this.router.put(
+      "/onboarding",
+      AuthMiddleware.authenticate,
+      AsyncUtils.wrap(authController.completeOnboarding.bind(authController)),
+    );
   }
 }

@@ -17,6 +17,13 @@ export type AuthUser = {
     name?: string;
     email: string;
     role: AuthRole;
+    onboardingCompleted?: boolean;
+};
+
+export type LoginResult = {
+    user: AuthUser;
+    accessToken: string;
+    refreshToken: string;
 };
 
 type AuthContextValue = {
@@ -25,7 +32,7 @@ type AuthContextValue = {
     refreshToken: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (payload: { email: string; password: string; role: AuthRole }) => Promise<void>;
+    login: (payload: { email: string; password: string; role: AuthRole }) => Promise<LoginResult>;
     setSession: (payload: { user: AuthUser; accessToken: string; refreshToken: string }) => void;
     refreshSession: () => Promise<void>;
     logout: () => Promise<void>;
@@ -97,6 +104,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
 
             setSession({ user: nextUser, accessToken: nextAccessToken, refreshToken: nextRefreshToken });
+            return {
+                user: nextUser,
+                accessToken: nextAccessToken,
+                refreshToken: nextRefreshToken,
+            };
         } finally {
             setIsLoading(false);
         }

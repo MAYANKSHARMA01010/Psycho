@@ -12,6 +12,20 @@ type AuthResponseData = {
   refreshToken?: string;
 };
 
+type OnboardingProfilePayload = {
+  fullName: string;
+  careGoal: "stress" | "sleep" | "relationships" | "career" | "other";
+  sessionStyle: "video" | "chat" | "mixed";
+  reminderChannel: "email" | "whatsapp" | "none";
+};
+
+type OnboardingResponseData = {
+  user: AuthUser;
+  onboardingCompleted: boolean;
+  onboardingCompletedAt: string | null;
+  onboardingProfile: OnboardingProfilePayload | null;
+};
+
 type ForgotPasswordResponseData = {
   resetToken: string | null;
 };
@@ -86,6 +100,33 @@ export async function changePasswordApi(payload: {
 
   return request<null>("/auth/change-password", {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getOnboardingStatusApi(accessToken: string) {
+  return request<OnboardingResponseData>("/auth/onboarding/status", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function completeOnboardingApi(payload: {
+  accessToken: string;
+  fullName: string;
+  careGoal: "stress" | "sleep" | "relationships" | "career" | "other";
+  sessionStyle: "video" | "chat" | "mixed";
+  reminderChannel: "email" | "whatsapp" | "none";
+}) {
+  const { accessToken, ...body } = payload;
+
+  return request<OnboardingResponseData>("/auth/onboarding", {
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
