@@ -49,14 +49,14 @@ export class AuthService {
   }
 
   private getGoogleOAuthConfig() {
-    if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.GOOGLE_REDIRECT_URI) {
+    const { computedEnv } = require("../config/env");
+    if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !computedEnv.GOOGLE_REDIRECT_URI) {
       throw ApiError.badRequest("Google OAuth is not configured");
     }
-
     return {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      redirectUri: env.GOOGLE_REDIRECT_URI,
+      redirectUri: computedEnv.GOOGLE_REDIRECT_URI,
     };
   }
 
@@ -226,10 +226,15 @@ export class AuthService {
       throw ApiError.unauthorized("User account is inactive");
     }
 
+    // Allow ADMIN to log in as CLIENT or THERAPIST
     if (selectedRole !== user.role) {
-      throw ApiError.unauthorized(
-        `This account is registered as ${user.role}. Please continue as ${user.role}.`,
-      );
+      if (user.role === Role.ADMIN && (selectedRole === Role.CLIENT || selectedRole === Role.THERAPIST)) {
+        // allow
+      } else {
+        throw ApiError.unauthorized(
+          `This account is registered as ${user.role}. Please continue as ${user.role}.`,
+        );
+      }
     }
 
     const isPasswordValid = await AuthUtils.comparePassword(password, user.passwordHash);

@@ -13,12 +13,15 @@ const envSchema = z.object({
   BACKEND_LOCAL_URL: z.string().url().default("http://localhost:5001"),
   BACKEND_SERVER_URL: z.string().url().optional().or(z.literal("")),
 
+  REDIS_LOCAL_URL: z.string().url().default("redis://localhost:6379"),
+  REDIS_SERVER_URL: z.string().url().optional().or(z.literal("")),
+
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
-  GOOGLE_REDIRECT_URI: z.string().url().optional(),
+  GOOGLE_REDIRECT_URI_LOCAL: z.string().url().optional(),
+  GOOGLE_REDIRECT_URI_SERVER: z.string().url().optional(),
 
   DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
 
   JWT_SESSION_SECRET: z.string().min(32),
   JWT_SESSION_EXPIRES_IN: z.string().default("15m"),
@@ -39,13 +42,23 @@ if (!_env.success) {
   process.exit(1);
 }
 
-export const env = _env.data;
+const env = _env.data;
 
-export const normalizedEnv = {
-  ...env,
-  PORT: env.SERVER_PORT,
-  CLIENT_URL: env.NODE_ENV === "production" ? env.FRONTEND_SERVER_URL || env.FRONTEND_LOCAL_URL : env.FRONTEND_LOCAL_URL,
-  BACKEND_URL: env.NODE_ENV === "production" ? env.BACKEND_SERVER_URL || env.BACKEND_LOCAL_URL : env.BACKEND_LOCAL_URL,
+export const computedEnv = {
+  CLIENT_URL: env.NODE_ENV === "production"
+    ? env.FRONTEND_SERVER_URL || env.FRONTEND_LOCAL_URL
+    : env.FRONTEND_LOCAL_URL,
+  BACKEND_URL: env.NODE_ENV === "production"
+    ? env.BACKEND_SERVER_URL || env.BACKEND_LOCAL_URL
+    : env.BACKEND_LOCAL_URL,
+  REDIS_URL: env.NODE_ENV === "production"
+    ? env.REDIS_SERVER_URL || env.REDIS_LOCAL_URL
+    : env.REDIS_LOCAL_URL,
   JWT_SECRET: env.JWT_SESSION_SECRET,
   JWT_ACCESS_EXPIRES_IN: env.JWT_SESSION_EXPIRES_IN,
+  GOOGLE_REDIRECT_URI: env.NODE_ENV === "production"
+    ? env.GOOGLE_REDIRECT_URI_SERVER || env.GOOGLE_REDIRECT_URI_LOCAL
+    : env.GOOGLE_REDIRECT_URI_LOCAL,
 };
+
+export { env };

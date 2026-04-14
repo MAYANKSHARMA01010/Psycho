@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import toast from "react-hot-toast";
 import { completeOnboardingApi, getGoogleAuthUrl, getOnboardingStatusApi } from "@/api/auth";
 import { useAuth } from "@/hooks/useAuth";
 import type { AuthRole, AuthUser } from "@/context/AuthContext";
@@ -49,8 +50,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<AuthRole>("CLIENT");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  // Remove local error/message state, use toast instead
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [onboarding, setOnboarding] = useState<OnboardingState>(defaultOnboardingState);
@@ -93,9 +93,12 @@ export default function LoginPage() {
     if (user.role === selectedRole) {
       return true;
     }
-
+    // Allow ADMIN to log in as CLIENT or THERAPIST
+    if (user.role === "ADMIN" && (selectedRole === "CLIENT" || selectedRole === "THERAPIST")) {
+      return true;
+    }
     await logout();
-    setError(`This account is registered as ${user.role}. Please select ${user.role} to continue.`);
+    toast.error(`This account is registered as ${user.role}. Please select ${user.role} to continue.`);
     return false;
   }
 
@@ -124,7 +127,7 @@ export default function LoginPage() {
         window.history.replaceState(null, "", window.location.pathname);
         await completeLoginFlow(user, { accessToken, refreshToken });
       } catch {
-        setError("Could not complete Google login");
+        toast.error("Could not complete Google login");
       }
     };
 
@@ -133,14 +136,10 @@ export default function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    setMessage("");
-
     if (!email || !password) {
-      setError("Email and password are required");
+      toast.error("Email and password are required");
       return;
     }
-
     try {
       const session = await login({ email, password, role });
       const isRoleValid = await enforceSelectedRole(session.user, role);
@@ -151,23 +150,21 @@ export default function LoginPage() {
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
       });
+      toast.success("Login successful!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      toast.error(err instanceof Error ? err.message : "Login failed");
     }
   }
 
   function handleOnboardingNext() {
     if (onboardingStep === 1 && !onboarding.fullName.trim()) {
-      setError("Please add your name to continue onboarding");
+      toast.error("Please add your name to continue onboarding");
       return;
     }
-
-    setError("");
     setOnboardingStep((prev) => Math.min(prev + 1, 3));
   }
 
   function handleOnboardingBack() {
-    setError("");
     setOnboardingStep((prev) => Math.max(prev - 1, 1));
   }
 
@@ -175,9 +172,6 @@ export default function LoginPage() {
     if (!pendingUser || !pendingTokens) {
       return;
     }
-
-    setError("");
-
     try {
       const response = await completeOnboardingApi({
         accessToken: pendingTokens.accessToken,
@@ -186,7 +180,6 @@ export default function LoginPage() {
         sessionStyle: onboarding.sessionStyle,
         reminderChannel: onboarding.reminderChannel,
       });
-
       setSession({
         user: response.data.user,
         accessToken: pendingTokens.accessToken,
@@ -194,8 +187,9 @@ export default function LoginPage() {
       });
       setShowOnboarding(false);
       router.push("/");
+      toast.success("Onboarding complete!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save onboarding details");
+      toast.error(err instanceof Error ? err.message : "Could not save onboarding details");
     }
   }
 
@@ -203,9 +197,6 @@ export default function LoginPage() {
     if (!pendingUser || !pendingTokens) {
       return;
     }
-
-    setError("");
-
     try {
       const response = await completeOnboardingApi({
         accessToken: pendingTokens.accessToken,
@@ -214,7 +205,6 @@ export default function LoginPage() {
         sessionStyle: onboarding.sessionStyle,
         reminderChannel: onboarding.reminderChannel,
       });
-
       setSession({
         user: response.data.user,
         accessToken: pendingTokens.accessToken,
@@ -222,25 +212,22 @@ export default function LoginPage() {
       });
       setShowOnboarding(false);
       router.push("/");
+      toast.success("Onboarding skipped!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not complete onboarding");
+      toast.error(err instanceof Error ? err.message : "Could not complete onboarding");
     }
   }
 
   async function handleForgotPassword() {
-    setError("");
-    setMessage("");
-
     if (!email) {
-      setError("Enter your email first");
+      toast.error("Enter your email first");
       return;
     }
-
     try {
       const responseMessage = await forgotPassword(email);
-      setMessage(responseMessage);
+      toast.success(responseMessage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Forgot password request failed");
+      toast.error(err instanceof Error ? err.message : "Forgot password request failed");
     }
   }
 
@@ -249,7 +236,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 px-4 py-8 sm:px-6">
+    <main className="min-h-screen flex items-center justify-center overflow-hidden bg-slate-100 px-4 py-8 sm:px-6 relative">
       <div className="pointer-events-none absolute -left-10 -top-10 h-52 w-52 rounded-full bg-cyan-300/35 blur-3xl" />
       <div className="pointer-events-none absolute -right-16 -bottom-16 h-60 w-60 rounded-full bg-amber-200/45 blur-3xl" />
 
@@ -258,8 +245,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-semibold leading-tight text-slate-900">Sign in to Zenora</h1>
         <p className="mt-2 text-sm text-slate-600">Continue with your account to access appointments and care history.</p>
 
-        {error ? <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-        {message ? <p className="mt-4 whitespace-pre-line rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p> : null}
+        {/* Toasts will show errors and messages, so remove inline error/message UI */}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>
@@ -308,7 +294,6 @@ export default function LoginPage() {
               {([
                 { value: "CLIENT", label: "Client" },
                 { value: "THERAPIST", label: "Therapist" },
-                { value: "ADMIN", label: "Admin" },
               ] as const).map((option) => {
                 const isActive = role === option.value;
 

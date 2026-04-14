@@ -5,8 +5,10 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec tsx src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && pnpm prisma:generate",
     "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

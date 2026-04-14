@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { env } from "./env";
+import { computedEnv, env } from "./env";
 import { logger } from "../utils/logger";
 
 export class RedisService {
@@ -10,7 +10,7 @@ export class RedisService {
 
   public static getInstance(): Redis {
     if (!this.instance) {
-      this.instance = new Redis(env.REDIS_URL, {
+      this.instance = new Redis(computedEnv.REDIS_URL, {
         maxRetriesPerRequest: null,
         retryStrategy(times) {
           if (times > 3) {
