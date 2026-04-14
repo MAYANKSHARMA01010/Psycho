@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import * as PrismaClient from "@prisma/client";
 import { ZodError } from "zod";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError";
