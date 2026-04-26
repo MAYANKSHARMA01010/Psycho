@@ -20,6 +20,18 @@ interface OAuthStatePayload {
   purpose: "google-oauth-state";
 }
 
+interface EmailVerificationPayload {
+  id: string;
+  email: string;
+  purpose: "email-verification";
+}
+
+export interface DecodedRefreshToken extends TokenPayload {
+  iat?: number;
+  exp?: number;
+  jti?: string;
+}
+
 export class AuthUtils {
   /**
    * Generate Access and Refresh JWT tokens
