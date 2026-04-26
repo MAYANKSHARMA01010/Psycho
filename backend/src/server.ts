@@ -5,8 +5,17 @@ import { LoggerService } from "./utils/logger";
 import { RedisService } from "./config/redis";
 import AuthRoutes from "./routes/auth.routes";
 import ProfileRoutes from "./routes/profile.routes";
+import TherapistRoutes from "./routes/therapist.routes";
+import AvailabilityRoutes from "./routes/availability.routes";
+import AdminRoutes from "./routes/admin.routes";
 
-const app = new App([new AuthRoutes(), new ProfileRoutes()]).express;
+const app = new App([
+  new AuthRoutes(),
+  new ProfileRoutes(),
+  new TherapistRoutes(),
+  new AvailabilityRoutes(),
+  new AdminRoutes(),
+]).express;
 
 export class Server {
   public static async start(): Promise<void> {
