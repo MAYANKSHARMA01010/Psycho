@@ -107,7 +107,7 @@ export class TherapistRepository {
     ]);
 
     return {
-      items: records.map((r) => ({
+      items: (records as any[]).map((r: any) => ({
         therapist: Therapist.fromPersistence(r),
         user: r.user,
       })),
@@ -170,7 +170,7 @@ export class TherapistRepository {
     ]);
 
     return {
-      items: records.map((r) => ({
+      items: (records as any[]).map((r: any) => ({
         therapist: Therapist.fromPersistence(r),
         user: r.user,
       })),
