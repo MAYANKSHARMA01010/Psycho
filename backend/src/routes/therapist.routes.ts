@@ -2,6 +2,7 @@ import { Router } from "express";
 import { AsyncUtils } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 import { ValidationMiddleware } from "../middlewares/validate";
+import { UploadMiddleware } from "../middlewares/upload";
 import { therapistController } from "../controllers/therapist.controller";
 import { Routes } from "../interfaces/route.interface";
 import { Role } from "../constants/roles";
@@ -61,6 +62,17 @@ export default class TherapistRoutes implements Routes {
       AuthMiddleware.authorize(Role.THERAPIST),
       ValidationMiddleware.validate(uploadDocumentSchema),
       AsyncUtils.wrap(therapistController.uploadDocument.bind(therapistController)),
+    );
+
+    // Direct multipart upload (uploads to Cloudinary then stores metadata)
+    this.router.post(
+      "/me/documents/upload",
+      AuthMiddleware.authenticate,
+      AuthMiddleware.authorize(Role.THERAPIST),
+      UploadMiddleware.single("file"),
+      AsyncUtils.wrap(
+        therapistController.uploadDocumentMultipart.bind(therapistController),
+      ),
     );
 
     this.router.get(

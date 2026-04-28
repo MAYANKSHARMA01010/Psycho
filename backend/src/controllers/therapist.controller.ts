@@ -64,6 +64,19 @@ export class TherapistController {
     return ApiResponse.success(res, 201, "Document uploaded", data);
   }
 
+  public async uploadDocumentMultipart(req: Request, res: Response) {
+    const body = req.body as { type: DocumentType; notes?: string };
+    if (!req.file) {
+      return ApiResponse.success(res, 400, "No file provided", null);
+    }
+    const data = await therapistDocumentService.uploadMultipart(
+      req.user!.id,
+      req.user!.role,
+      { type: body.type, file: req.file, notes: body.notes },
+    );
+    return ApiResponse.success(res, 201, "Document uploaded", data);
+  }
+
   public async listOwnDocuments(req: Request, res: Response) {
     const data = await therapistDocumentService.listOwn(req.user!.id, req.user!.role);
     return ApiResponse.success(res, 200, "Documents fetched", data);

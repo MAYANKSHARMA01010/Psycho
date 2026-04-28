@@ -7,6 +7,8 @@ export interface UserProps {
   name: string;
   email: string;
   phone: string | null;
+  avatarUrl: string | null;
+  avatarPublicId: string | null;
   passwordHash: string;
   role: Role;
   isActive: boolean;
@@ -31,9 +33,16 @@ export interface UserResponse {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
+  avatarUrl: string | null;
   role: Role;
   isEmailVerified: boolean;
   onboardingCompleted: boolean;
+}
+
+export interface UpdateProfileInput {
+  name?: string;
+  phone?: string | null;
 }
 
 export interface UserPersistencePayload {
@@ -41,6 +50,8 @@ export interface UserPersistencePayload {
   name: string;
   email: string;
   phone: string | null;
+  avatarUrl: string | null;
+  avatarPublicId: string | null;
   passwordHash: string;
   role: Role;
   isActive: boolean;
@@ -62,6 +73,8 @@ export class User {
   public name: string;
   public email: string;
   public phone: string | null;
+  public avatarUrl: string | null;
+  public avatarPublicId: string | null;
   private passwordHash: string;
   public readonly role: Role;
   public isActive: boolean;
@@ -77,6 +90,8 @@ export class User {
     this.name = props.name;
     this.email = props.email;
     this.phone = props.phone;
+    this.avatarUrl = props.avatarUrl;
+    this.avatarPublicId = props.avatarPublicId;
     this.passwordHash = props.passwordHash;
     this.role = props.role;
     this.isActive = props.isActive;
@@ -101,6 +116,8 @@ export class User {
       name: input.name.trim(),
       email: User.normalizeEmail(input.email),
       phone: input.phone ?? null,
+      avatarUrl: null,
+      avatarPublicId: null,
       passwordHash,
       role: input.role,
       isActive: true,
@@ -113,26 +130,14 @@ export class User {
     });
   }
 
-  public static fromPersistence(record: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string | null;
-    passwordHash: string;
-    role: string;
-    isActive: boolean;
-    isEmailVerified: boolean;
-    onboardingCompleted: boolean;
-    onboardingCompletedAt: Date | null;
-    onboardingProfile: unknown;
-    createdAt: Date;
-    updatedAt: Date;
-  }): User {
+  public static fromPersistence(record: any): User {
     return new User({
       id: record.id,
       name: record.name,
       email: record.email,
       phone: record.phone,
+      avatarUrl: record.avatarUrl ?? null,
+      avatarPublicId: record.avatarPublicId ?? null,
       passwordHash: record.passwordHash,
       role: record.role as Role,
       isActive: record.isActive,
@@ -143,6 +148,26 @@ export class User {
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });
+  }
+
+  public updateProfile(input: UpdateProfileInput): void {
+    if (input.name !== undefined) this.name = input.name.trim();
+    if (input.phone !== undefined) this.phone = input.phone ? input.phone.trim() : null;
+    this.touch();
+  }
+
+  public setAvatar(url: string, publicId: string): void {
+    this.avatarUrl = url;
+    this.avatarPublicId = publicId;
+    this.touch();
+  }
+
+  public clearAvatar(): { previousPublicId: string | null } {
+    const previousPublicId = this.avatarPublicId;
+    this.avatarUrl = null;
+    this.avatarPublicId = null;
+    this.touch();
+    return { previousPublicId };
   }
 
   public async verifyPassword(plaintext: string): Promise<boolean> {
@@ -178,6 +203,8 @@ export class User {
       id: this.id,
       name: this.name,
       email: this.email,
+      phone: this.phone,
+      avatarUrl: this.avatarUrl,
       role: this.role,
       isEmailVerified: this.isEmailVerified,
       onboardingCompleted: this.onboardingCompleted,
@@ -190,6 +217,8 @@ export class User {
       name: this.name,
       email: this.email,
       phone: this.phone,
+      avatarUrl: this.avatarUrl,
+      avatarPublicId: this.avatarPublicId,
       passwordHash: this.passwordHash,
       role: this.role,
       isActive: this.isActive,

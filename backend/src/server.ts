@@ -10,10 +10,14 @@ import TherapistRoutes from "./routes/therapist.routes";
 import AvailabilityRoutes from "./routes/availability.routes";
 import AdminRoutes from "./routes/admin.routes";
 import SessionRoutes from "./routes/session.routes";
+import UserRoutes from "./routes/user.routes";
+import UploadRoutes from "./routes/upload.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
   new AuthRoutes(),
+  new UserRoutes(),       // Member 1 — User profile + avatar
+  new UploadRoutes(),     // Member 1 — Generic file upload (Cloudinary)
   new ProfileRoutes(),
   new TherapistRoutes(),
   new AvailabilityRoutes(),

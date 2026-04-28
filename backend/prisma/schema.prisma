@@ -89,6 +89,27 @@ enum DocumentType {
   OTHER
 }
 
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum AssessmentSeverity {
+  MINIMAL
+  MILD
+  MODERATE
+  MODERATELY_SEVERE
+  SEVERE
+}
+
+enum TreatmentPlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
 // -----------------------------------------------------------------------------
 // MODELS
 // -----------------------------------------------------------------------------
@@ -98,6 +119,8 @@ model User {
   name            String
   email           String   @unique
   phone           String?  @unique
+  avatarUrl       String?
+  avatarPublicId  String?
   passwordHash    String
   role            Role
   isActive        Boolean  @default(true)
@@ -166,6 +189,7 @@ model Therapist {
   treatmentPlans    TreatmentPlan[]
   availabilitySlots AvailabilitySlot[]
   documents         TherapistDocument[]
+  withdrawals       Withdrawal[]
 
   @@index([verificationStatus])
   @@index([specialization])
@@ -224,13 +248,15 @@ model Session {
 }
 
 model Assessment {
-  id          String   @id @default(uuid())
+  id          String             @id @default(uuid())
   clientId    String
+  type        String             @default("PHQ9")
   responses   Json
   score       Float
-  severity    String
+  severity    AssessmentSeverity
+  crisisFlag  Boolean            @default(false)
   completedAt DateTime
-  createdAt   DateTime @default(now())
+  createdAt   DateTime           @default(now())
 
   // Relations
   client        Client         @relation(fields: [clientId], references: [id])
@@ -238,17 +264,18 @@ model Assessment {
 }
 
 model TreatmentPlan {
-  id           String     @id @default(uuid())
+  id           String              @id @default(uuid())
   clientId     String
   therapistId  String
-  assessmentId String     @unique
+  assessmentId String              @unique
   goals        String
   milestones   Json
-  status       String     @default("active")
+  status       TreatmentPlanStatus @default(ACTIVE)
+  progress     Float               @default(0)
   startDate    DateTime
   endDate      DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   // Relations
   client     Client     @relation(fields: [clientId], references: [id])
@@ -257,19 +284,24 @@ model TreatmentPlan {
 }
 
 model Payment {
-  id               String        @id @default(uuid())
-  clientId         String
-  sessionId        String        @unique
-  amount           Float
-  currency         String        @default("INR")
-  status           PaymentStatus
-  method           String
-  transactionId    String?       @unique
-  gatewayResponse  Json?
-  refundReason     String?
-  paidAt           DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                    String        @id @default(uuid())
+  clientId              String
+  sessionId             String        @unique
+  amount                Float
+  currency              String        @default("INR")
+  status                PaymentStatus
+  method                String
+  stripePaymentIntentId String?       @unique
+  stripeChargeId        String?       @unique
+  transactionId         String?       @unique
+  gatewayResponse       Json?
+  invoiceUrl            String?
+  invoicePublicId       String?
+  refundedAmount        Float         @default(0)
+  refundReason          String?
+  paidAt                DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
 
   // Relations
   client  Client  @relation(fields: [clientId], references: [id])
@@ -277,31 +309,54 @@ model Payment {
 }
 
 model Subscription {
-  id         String             @id @default(uuid())
-  clientId   String             @unique
-  planName   String
-  price      Float
-  currency   String             @default("INR")
-  status     SubscriptionStatus
-  autoRenew  Boolean            @default(true)
-  startDate  DateTime
-  endDate    DateTime
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  id                       String             @id @default(uuid())
+  clientId                 String             @unique
+  planName                 String
+  price                    Float
+  currency                 String             @default("INR")
+  status                   SubscriptionStatus
+  autoRenew                Boolean            @default(true)
+  startDate                DateTime
+  endDate                  DateTime
+  stripeCustomerId         String?
+  stripeSubscriptionId     String?            @unique
+  cancelledAt              DateTime?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
 
   // Relations
   client Client @relation(fields: [clientId], references: [id])
 }
 
+model Withdrawal {
+  id          String           @id @default(uuid())
+  therapistId String
+  amount      Float
+  currency    String           @default("INR")
+  status      WithdrawalStatus @default(PENDING)
+  notes       String?
+  rejectionReason String?
+  processedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  therapist Therapist @relation(fields: [therapistId], references: [id])
+
+  @@index([therapistId, status])
+}
+
 model Prescription {
-  id           String   @id @default(uuid())
-  therapistId  String
-  clientId     String
-  medications  Json
-  instructions String
-  pdfUrl       String?
-  issuedAt     DateTime @default(now())
-  createdAt    DateTime @default(now())
+  id             String   @id @default(uuid())
+  therapistId    String
+  clientId       String
+  sessionId      String?
+  medications    Json
+  instructions   String
+  diagnosis      String?
+  pdfUrl         String?
+  pdfPublicId    String?
+  issuedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
 
   // Relations
   therapist Therapist @relation(fields: [therapistId], references: [id])
