@@ -7,9 +7,6 @@ const configDir = dirname(fileURLToPath(import.meta.url));
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-  turbopack: {
-    root: configDir,
-  },
 };
 
 export default nextConfig;
