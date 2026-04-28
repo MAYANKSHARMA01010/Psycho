@@ -15,6 +15,7 @@ import UploadRoutes from "./routes/upload.routes";
 import PaymentRoutes from "./routes/payment.routes";
 import SubscriptionRoutes from "./routes/subscription.routes";
 import EarningRoutes from "./routes/earning.routes";
+import AssessmentRoutes from "./routes/assessment.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
@@ -29,6 +30,7 @@ const app = new App([
   new PaymentRoutes(),      // Member 4 — Payments (Stripe)
   new SubscriptionRoutes(), // Member 4 — Subscription plans
   new EarningRoutes(),      // Member 4 — Earnings + withdrawals (therapist self)
+  new AssessmentRoutes(),   // Member 5 — Assessment + Treatment plan
 ]).express;
 
 export class Server {
