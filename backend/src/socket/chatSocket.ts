@@ -40,7 +40,7 @@ export class ChatSocketHandler {
   }
 
   private attachAuthMiddleware(): void {
-    this.io.use((socket, next) => {
+    this.io.use((socket: any, next: (err?: any) => void) => {
       const token =
         socket.handshake.auth?.token ??
         socket.handshake.headers?.authorization?.split(" ")[1];
