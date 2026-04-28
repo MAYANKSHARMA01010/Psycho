@@ -3,6 +3,7 @@ import { AsyncUtils } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 import { ValidationMiddleware } from "../middlewares/validate";
 import { adminTherapistController } from "../controllers/admin.therapist.controller";
+import { adminWithdrawalController } from "../controllers/earning.controller";
 import { Routes } from "../interfaces/route.interface";
 import { Role } from "../constants/roles";
 import {
@@ -10,6 +11,11 @@ import {
   therapistIdParamSchema,
   verificationListQuerySchema,
 } from "../validators/therapist.validation";
+import {
+  listWithdrawalsQuerySchema,
+  rejectWithdrawalSchema,
+  withdrawalIdParamSchema,
+} from "../validators/withdrawal.validation";
 
 export default class AdminRoutes implements Routes {
   public path = "/api/v1/admin";
@@ -54,6 +60,32 @@ export default class AdminRoutes implements Routes {
       ValidationMiddleware.validate(therapistIdParamSchema),
       ValidationMiddleware.validate(rejectTherapistSchema),
       AsyncUtils.wrap(adminTherapistController.reject.bind(adminTherapistController)),
+    );
+
+    // Withdrawals (Member 4)
+    this.router.get(
+      "/withdrawals",
+      ValidationMiddleware.validate(listWithdrawalsQuerySchema),
+      AsyncUtils.wrap(adminWithdrawalController.list.bind(adminWithdrawalController)),
+    );
+
+    this.router.post(
+      "/withdrawals/:withdrawalId/approve",
+      ValidationMiddleware.validate(withdrawalIdParamSchema),
+      AsyncUtils.wrap(adminWithdrawalController.approve.bind(adminWithdrawalController)),
+    );
+
+    this.router.post(
+      "/withdrawals/:withdrawalId/reject",
+      ValidationMiddleware.validate(withdrawalIdParamSchema),
+      ValidationMiddleware.validate(rejectWithdrawalSchema),
+      AsyncUtils.wrap(adminWithdrawalController.reject.bind(adminWithdrawalController)),
+    );
+
+    this.router.post(
+      "/withdrawals/:withdrawalId/paid",
+      ValidationMiddleware.validate(withdrawalIdParamSchema),
+      AsyncUtils.wrap(adminWithdrawalController.markPaid.bind(adminWithdrawalController)),
     );
   }
 }

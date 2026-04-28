@@ -13,18 +13,22 @@ import SessionRoutes from "./routes/session.routes";
 import UserRoutes from "./routes/user.routes";
 import UploadRoutes from "./routes/upload.routes";
 import PaymentRoutes from "./routes/payment.routes";
+import SubscriptionRoutes from "./routes/subscription.routes";
+import EarningRoutes from "./routes/earning.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
   new AuthRoutes(),
-  new UserRoutes(),       // Member 1 — User profile + avatar
-  new UploadRoutes(),     // Member 1 — Generic file upload (Cloudinary)
+  new UserRoutes(),         // Member 1 — User profile + avatar
+  new UploadRoutes(),       // Member 1 — Generic file upload (Cloudinary)
   new ProfileRoutes(),
   new TherapistRoutes(),
   new AvailabilityRoutes(),
   new AdminRoutes(),
-  new SessionRoutes(),    // Member 3 — Session & Chat
-  new PaymentRoutes(),    // Member 4 — Payments (Stripe)
+  new SessionRoutes(),      // Member 3 — Session & Chat
+  new PaymentRoutes(),      // Member 4 — Payments (Stripe)
+  new SubscriptionRoutes(), // Member 4 — Subscription plans
+  new EarningRoutes(),      // Member 4 — Earnings + withdrawals (therapist self)
 ]).express;
 
 export class Server {
