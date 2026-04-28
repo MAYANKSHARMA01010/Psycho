@@ -207,6 +207,7 @@ export class AuthService {
 
     user.completeOnboarding(profile);
     await this.users.update(user);
+    await this.users.ensureRoleProfile(user.id, user.role);
 
     return {
       user: user.toResponse(),
@@ -283,10 +284,6 @@ export class AuthService {
       });
       await this.users.insert(user);
       await this.users.ensureRoleProfile(user.id, user.role);
-    } else if (user.role !== statePayload.role) {
-      throw ApiError.unauthorized(
-        `This account is registered as ${user.role}. Please continue as ${user.role}.`,
-      );
     }
 
     const tokens = this.issueTokens(user);

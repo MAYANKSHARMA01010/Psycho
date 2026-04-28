@@ -1,13 +1,15 @@
+import { env } from "@/config/env";
+
 export const config = {
-  NODE_ENV: process.env.NODE_ENV || "development",
+  NODE_ENV: env.NODE_ENV,
   FRONTEND_URL:
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_SERVER_FRONTEND_URL || "http://localhost:3000"
-      : process.env.NEXT_PUBLIC_LOCAL_FRONTEND_URL || "http://localhost:3000",
+    env.NODE_ENV === "production"
+      ? env.NEXT_PUBLIC_SERVER_FRONTEND_URL || env.NEXT_PUBLIC_LOCAL_FRONTEND_URL
+      : env.NEXT_PUBLIC_LOCAL_FRONTEND_URL,
   BACKEND_URL:
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_BACKEND_SERVER_URL || "http://localhost:5001"
-      : process.env.NEXT_PUBLIC_BACKEND_LOCAL_URL || "http://localhost:5001",
+    env.NODE_ENV === "production"
+      ? env.NEXT_PUBLIC_BACKEND_SERVER_URL || env.NEXT_PUBLIC_BACKEND_LOCAL_URL
+      : env.NEXT_PUBLIC_BACKEND_LOCAL_URL,
 };
 
 export const getApiUrl = (endpoint: string) => {

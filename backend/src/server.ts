@@ -31,7 +31,7 @@ export class Server {
   public static async start(): Promise<void> {
     try {
       // 1. Connect to Database
-      await DatabaseService.getInstance();
+      const prisma = await DatabaseService.getInstance();
 
       // 2. Initialize Redis
       RedisService.getInstance();
