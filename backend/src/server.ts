@@ -10,6 +10,9 @@ import TherapistRoutes from "./routes/therapist.routes";
 import AvailabilityRoutes from "./routes/availability.routes";
 import AdminRoutes from "./routes/admin.routes";
 import SessionRoutes from "./routes/session.routes";
+import PaymentRoutes from "./routes/payment.routes";
+import SubscriptionRoutes from "./routes/subscription.routes";
+import FinancialRoutes from "./routes/financial.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
@@ -19,6 +22,9 @@ const app = new App([
   new AvailabilityRoutes(),
   new AdminRoutes(),
   new SessionRoutes(),   // Member 3 — Session & Chat
+  new PaymentRoutes(),
+  new SubscriptionRoutes(),
+  new FinancialRoutes(),
 ]).express;
 
 export class Server {

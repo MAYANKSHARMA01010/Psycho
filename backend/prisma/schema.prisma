@@ -53,6 +53,13 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
 enum NotificationType {
   SESSION_REMINDER
   MEDICATION_REMINDER
@@ -158,14 +165,15 @@ model Therapist {
   bankAccountInfo     Json?
 
   // Relations
-  sessions          Session[]
-  prescriptions     Prescription[]
-  complaints        Complaint[]         @relation("TherapistComplaints")
-  ratings           Rating[]
-  earnings          Earning[]
-  treatmentPlans    TreatmentPlan[]
-  availabilitySlots AvailabilitySlot[]
-  documents         TherapistDocument[]
+  sessions            Session[]
+  prescriptions       Prescription[]
+  complaints          Complaint[]           @relation("TherapistComplaints")
+  ratings             Rating[]
+  earnings            Earning[]
+  treatmentPlans      TreatmentPlan[]
+  availabilitySlots   AvailabilitySlot[]
+  documents           TherapistDocument[]
+  withdrawalRequests  WithdrawalRequest[]
 
   @@index([verificationStatus])
   @@index([specialization])
@@ -274,6 +282,9 @@ model Payment {
   // Relations
   client  Client  @relation(fields: [clientId], references: [id])
   session Session @relation(fields: [sessionId], references: [id])
+
+  @@index([clientId, status])
+  @@index([status])
 }
 
 model Subscription {
@@ -382,19 +393,41 @@ model Rating {
 }
 
 model Earning {
-  id                 String    @id @default(uuid())
+  id                 String              @id @default(uuid())
   therapistId        String
-  sessionId          String    @unique
+  sessionId          String              @unique
   amount             Float
   platformCommission Float
   netAmount          Float
-  isPaid             Boolean   @default(false)
+  isPaid             Boolean             @default(false)
   paidAt             DateTime?
-  createdAt          DateTime  @default(now())
+  withdrawalId       String?
+  createdAt          DateTime            @default(now())
+
+  // Relations
+  therapist         Therapist          @relation(fields: [therapistId], references: [id])
+  session           Session            @relation(fields: [sessionId], references: [id])
+  withdrawalRequest WithdrawalRequest? @relation(fields: [withdrawalId], references: [id])
+
+  @@index([therapistId, isPaid])
+}
+
+model WithdrawalRequest {
+  id          String           @id @default(uuid())
+  therapistId String
+  amount      Float
+  status      WithdrawalStatus @default(PENDING)
+  notes       String?
+  processedAt DateTime?
+  requestedAt DateTime         @default(now())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   // Relations
   therapist Therapist @relation(fields: [therapistId], references: [id])
-  session   Session   @relation(fields: [sessionId], references: [id])
+  earnings  Earning[]
+
+  @@index([therapistId, status])
 }
 
 model ChatMessage {
