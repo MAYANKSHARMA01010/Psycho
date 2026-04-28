@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { computedEnv, env } from "./env";
+import { config } from "./env";
 import { logger } from "../utils/logger";
 
 export class RedisService {
@@ -10,7 +10,7 @@ export class RedisService {
 
   public static getInstance(): Redis {
     if (!this.instance) {
-      this.instance = new Redis(computedEnv.REDIS_URL, {
+      this.instance = new Redis(config.REDIS_URL, {
         maxRetriesPerRequest: null,
         retryStrategy(times) {
           if (times > 3) {
@@ -37,7 +37,7 @@ export class RedisService {
       });
 
       this.instance.on("end", () => {
-        if (env.NODE_ENV === "development") {
+        if (config.NODE_ENV === "development") {
           logger.warn("Redis reconnect attempts stopped.");
         }
       });

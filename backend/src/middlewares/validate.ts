@@ -18,10 +18,14 @@ export class ValidationMiddleware {
           req.body = await schema.body.parseAsync(req.body);
         }
         if (schema.query) {
-          (req as any).query = await schema.query.parseAsync(req.query);
+          const parsed = await schema.query.parseAsync(req.query);
+          Object.keys(req.query).forEach((key) => delete (req.query as any)[key]);
+          Object.assign(req.query, parsed);
         }
         if (schema.params) {
-          (req as any).params = await schema.params.parseAsync(req.params);
+          const parsed = await schema.params.parseAsync(req.params);
+          Object.keys(req.params).forEach((key) => delete (req.params as any)[key]);
+          Object.assign(req.params, parsed);
         }
         next();
       } catch (error: any) {

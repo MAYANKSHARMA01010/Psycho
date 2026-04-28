@@ -44,21 +44,55 @@ if (!_env.success) {
 
 const env = _env.data;
 
-export const computedEnv = {
+/**
+ * Combined configuration object that automatically selects the correct URL
+ * based on the current NODE_ENV (development vs production).
+ */
+export const config = {
+  NODE_ENV: env.NODE_ENV,
+  PORT: env.SERVER_PORT,
+
+  // URLs (automatically switch between Local and Server based on NODE_ENV)
   CLIENT_URL: env.NODE_ENV === "production"
-    ? env.FRONTEND_SERVER_URL || env.FRONTEND_LOCAL_URL
+    ? (env.FRONTEND_SERVER_URL || env.FRONTEND_LOCAL_URL)
     : env.FRONTEND_LOCAL_URL,
+    
   BACKEND_URL: env.NODE_ENV === "production"
-    ? env.BACKEND_SERVER_URL || env.BACKEND_LOCAL_URL
+    ? (env.BACKEND_SERVER_URL || env.BACKEND_LOCAL_URL)
     : env.BACKEND_LOCAL_URL,
+    
   REDIS_URL: env.NODE_ENV === "production"
-    ? env.REDIS_SERVER_URL || env.REDIS_LOCAL_URL
+    ? (env.REDIS_SERVER_URL || env.REDIS_LOCAL_URL)
     : env.REDIS_LOCAL_URL,
-  JWT_SECRET: env.JWT_SESSION_SECRET,
-  JWT_ACCESS_EXPIRES_IN: env.JWT_SESSION_EXPIRES_IN,
+    
   GOOGLE_REDIRECT_URI: env.NODE_ENV === "production"
-    ? env.GOOGLE_REDIRECT_URI_SERVER || env.GOOGLE_REDIRECT_URI_LOCAL
+    ? (env.GOOGLE_REDIRECT_URI_SERVER || env.GOOGLE_REDIRECT_URI_LOCAL)
     : env.GOOGLE_REDIRECT_URI_LOCAL,
+
+  // Auth & Security
+  JWT: {
+    SECRET: env.JWT_SESSION_SECRET,
+    EXPIRES_IN: env.JWT_SESSION_EXPIRES_IN,
+    REFRESH_SECRET: env.JWT_REFRESH_SECRET,
+    REFRESH_EXPIRES_IN: env.JWT_REFRESH_EXPIRES_IN,
+  },
+  
+  BCRYPT_SALT_ROUNDS: env.BCRYPT_SALT_ROUNDS,
+  
+  // Rate Limiting
+  RATE_LIMIT: {
+    WINDOW_MS: env.RATE_LIMIT_WINDOW_MS,
+    MAX: env.RATE_LIMIT_MAX,
+  },
+
+  // Third Party
+  GOOGLE: {
+    CLIENT_ID: env.GOOGLE_CLIENT_ID,
+    CLIENT_SECRET: env.GOOGLE_CLIENT_SECRET,
+  },
+
+  DATABASE_URL: env.DATABASE_URL,
 };
 
+// Also export raw env for cases where it's specifically needed
 export { env };

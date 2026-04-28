@@ -1,6 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
 import { randomUUID } from "node:crypto";
-import { computedEnv, env } from "../config/env";
+import { config } from "../config/env";
 import { Role } from "../constants/roles";
 import { User, OnboardingProfile, UserResponse } from "../entities/User";
 import { UserRepository, userRepository } from "../repositories/UserRepository";
@@ -120,7 +120,7 @@ export class AuthService {
     return {
       message: "Password reset token generated",
       data: {
-        resetToken: env.NODE_ENV === "development" ? resetToken : null,
+        resetToken: config.NODE_ENV === "development" ? resetToken : null,
       },
     };
   }
@@ -164,7 +164,7 @@ export class AuthService {
     return {
       message: "Verification email sent",
       data: {
-        verificationToken: env.NODE_ENV === "development" ? verificationToken : null,
+        verificationToken: config.NODE_ENV === "development" ? verificationToken : null,
       },
     };
   }
@@ -320,20 +320,18 @@ export class AuthService {
   }
 
   private getGoogleOAuthConfig() {
-    if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !computedEnv.GOOGLE_REDIRECT_URI) {
+    if (!config.GOOGLE.CLIENT_ID || !config.GOOGLE.CLIENT_SECRET || !config.GOOGLE_REDIRECT_URI) {
       throw ApiError.badRequest("Google OAuth is not configured");
     }
     return {
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      redirectUri: computedEnv.GOOGLE_REDIRECT_URI,
+      clientId: config.GOOGLE.CLIENT_ID,
+      clientSecret: config.GOOGLE.CLIENT_SECRET,
+      redirectUri: config.GOOGLE_REDIRECT_URI,
     };
   }
 
   private getFrontendRedirectBase(): string {
-    return env.NODE_ENV === "production"
-      ? env.FRONTEND_SERVER_URL || env.FRONTEND_LOCAL_URL
-      : env.FRONTEND_LOCAL_URL;
+    return config.CLIENT_URL;
   }
 }
 

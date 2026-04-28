@@ -1,3 +1,4 @@
+import { config } from "@/utils/config";
 import type { AuthRole, AuthUser } from "@/context/AuthContext";
 
 type ApiEnvelope<T> = {
@@ -30,7 +31,7 @@ type ForgotPasswordResponseData = {
   resetToken: string | null;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5001/api/v1";
+const API_BASE_URL = `${config.BACKEND_URL}${config.BACKEND_URL.includes("/api") ? "/v1" : "/api/v1"}`;
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<ApiEnvelope<T>> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
