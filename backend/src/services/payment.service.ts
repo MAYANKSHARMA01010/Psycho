@@ -6,6 +6,7 @@ import { PaymentRepository, paymentRepository } from "../repositories/PaymentRep
 import { EarningRepository, earningRepository } from "../repositories/EarningRepository";
 import { SessionRepository, sessionRepository } from "../repositories/SessionRepository";
 import { ApiError } from "../utils/ApiError";
+import { notificationService } from "./notification.service";
 
 /** Platform commission rate: 10% */
 const COMMISSION_RATE = 0.10;
@@ -91,6 +92,20 @@ export class PaymentService {
       await this.earnings.create(earning);
     }
 
+    await notificationService.sendToUsers({
+      userIds: [payment.clientId],
+      type: "PAYMENT_UPDATE",
+      channels: ["PUSH", "EMAIL"],
+      title: "Payment Successful",
+      message: `Your payment of ${payment.currency} ${payment.amount.toFixed(2)} was confirmed.`,
+      metadata: {
+        paymentId: payment.id,
+        sessionId: payment.sessionId,
+        status: saved.status,
+      },
+      clientId: payment.clientId,
+    });
+
     return { payment: saved.toResponse() };
   }
 
@@ -108,6 +123,21 @@ export class PaymentService {
       // We don't delete — mark the earning as reversed by setting isPaid=true and netAmount context
       // In a real system this would be a separate refund-earning record
     }
+
+    await notificationService.sendToUsers({
+      userIds: [payment.clientId],
+      type: "PAYMENT_UPDATE",
+      channels: ["PUSH", "EMAIL"],
+      title: "Payment Refunded",
+      message: `Your payment of ${payment.currency} ${payment.amount.toFixed(2)} has been refunded.`,
+      metadata: {
+        paymentId: payment.id,
+        sessionId: payment.sessionId,
+        status: saved.status,
+        reason,
+      },
+      clientId: payment.clientId,
+    });
 
     return { payment: saved.toResponse() };
   }

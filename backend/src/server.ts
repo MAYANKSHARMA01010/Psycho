@@ -13,6 +13,13 @@ import SessionRoutes from "./routes/session.routes";
 import PaymentRoutes from "./routes/payment.routes";
 import SubscriptionRoutes from "./routes/subscription.routes";
 import FinancialRoutes from "./routes/financial.routes";
+import AssessmentRoutes from "./routes/assessment.routes";
+import TreatmentPlanRoutes from "./routes/treatmentPlan.routes";
+import PrescriptionRoutes from "./routes/prescription.routes";
+import RatingRoutes from "./routes/rating.routes";
+import ComplaintRoutes from "./routes/complaint.routes";
+import NotificationRoutes from "./routes/notification.routes";
+import AdminDashboardRoutes from "./routes/adminDashboard.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
@@ -25,6 +32,13 @@ const app = new App([
   new PaymentRoutes(),
   new SubscriptionRoutes(),
   new FinancialRoutes(),
+  new AssessmentRoutes(),
+  new TreatmentPlanRoutes(),
+  new PrescriptionRoutes(),
+  new RatingRoutes(),
+  new ComplaintRoutes(),
+  new NotificationRoutes(),
+  new AdminDashboardRoutes(),
 ]).express;
 
 export class Server {
