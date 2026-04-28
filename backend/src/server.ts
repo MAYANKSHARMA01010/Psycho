@@ -12,6 +12,7 @@ import AdminRoutes from "./routes/admin.routes";
 import SessionRoutes from "./routes/session.routes";
 import UserRoutes from "./routes/user.routes";
 import UploadRoutes from "./routes/upload.routes";
+import PaymentRoutes from "./routes/payment.routes";
 import { ChatSocketHandler } from "./socket/chatSocket";
 
 const app = new App([
@@ -22,7 +23,8 @@ const app = new App([
   new TherapistRoutes(),
   new AvailabilityRoutes(),
   new AdminRoutes(),
-  new SessionRoutes(),   // Member 3 — Session & Chat
+  new SessionRoutes(),    // Member 3 — Session & Chat
+  new PaymentRoutes(),    // Member 4 — Payments (Stripe)
 ]).express;
 
 export class Server {

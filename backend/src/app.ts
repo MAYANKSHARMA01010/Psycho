@@ -26,8 +26,12 @@ export class App {
     // 2. cors(corsOptions)
     this.express.use(cors(corsOptions));
 
-    // 3. express.json({ limit: "10mb" })
-    this.express.use(express.json({ limit: "10mb" }));
+    // 3. express.json({ limit: "10mb" }) — skip for Stripe webhook so it can verify raw body
+    const RAW_BODY_PATHS = new Set<string>(["/api/v1/payments/webhook"]);
+    this.express.use((req, res, next) => {
+      if (RAW_BODY_PATHS.has(req.originalUrl.split("?")[0])) return next();
+      return express.json({ limit: "10mb" })(req, res, next);
+    });
 
     // 4. express.urlencoded({ extended: true })
     this.express.use(express.urlencoded({ extended: true }));
