@@ -12,7 +12,7 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand",
-    "prepare": "husky || true"
+    "prepare": "if [ \"$CI\" != \"true\" ]; then husky || true; fi"
   },
   "keywords": [],
   "author": "",

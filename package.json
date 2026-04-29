@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npm --prefix backend run dev",
-    "build": "npm --prefix backend run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm --filter \"*\" dev",
+    "build": "pnpm --filter frontend build",
+    "backend:build": "pnpm --filter backend build",
+    "test": "pnpm --filter \"*\" test"
   },
   "keywords": [],
   "author": "",
