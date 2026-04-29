@@ -30,6 +30,17 @@ export class TherapistRepository {
     return DatabaseService.getInstance();
   }
 
+  private normalizePagination(pagination: PaginationOptions): PaginationOptions {
+    const page = Number(pagination.page);
+    const limit = Number(pagination.limit);
+
+    return {
+      ...pagination,
+      page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1,
+      limit: Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 20,
+    };
+  }
+
   public async findById(id: string): Promise<Therapist | null> {
     const db = await this.db();
     const record = await db.therapist.findUnique({ where: { id } });
@@ -94,14 +105,15 @@ export class TherapistRepository {
     pagination: PaginationOptions,
   ): Promise<PaginatedResult<{ therapist: Therapist; user: { id: string; name: string; email: string } }>> {
     const db = await this.db();
+    const safePagination = this.normalizePagination(pagination);
     const where: Prisma.TherapistWhereInput = { verificationStatus: status };
     const [records, total] = await Promise.all([
       db.therapist.findMany({
         where,
         include: { user: { select: { id: true, name: true, email: true } } },
         orderBy: { id: "asc" },
-        skip: (pagination.page - 1) * pagination.limit,
-        take: pagination.limit,
+        skip: (safePagination.page - 1) * safePagination.limit,
+        take: safePagination.limit,
       }),
       db.therapist.count({ where }),
     ]);
@@ -112,9 +124,9 @@ export class TherapistRepository {
         user: r.user,
       })),
       total,
-      page: pagination.page,
-      limit: pagination.limit,
-      totalPages: Math.ceil(total / pagination.limit) || 1,
+      page: safePagination.page,
+      limit: safePagination.limit,
+      totalPages: Math.ceil(total / safePagination.limit) || 1,
     };
   }
 
@@ -123,6 +135,7 @@ export class TherapistRepository {
     pagination: PaginationOptions,
   ): Promise<PaginatedResult<{ therapist: Therapist; user: { id: string; name: string; email: string } }>> {
     const db = await this.db();
+    const safePagination = this.normalizePagination(pagination);
 
     const where: Prisma.TherapistWhereInput = {
       verificationStatus: "APPROVED",
@@ -152,19 +165,19 @@ export class TherapistRepository {
     }
 
     const orderBy: Prisma.TherapistOrderByWithRelationInput =
-      pagination.sortBy === "experience"
-        ? { experience: pagination.sortOrder ?? "desc" }
-        : pagination.sortBy === "createdAt"
-          ? { id: pagination.sortOrder ?? "desc" }
-          : { rating: pagination.sortOrder ?? "desc" };
+      safePagination.sortBy === "experience"
+        ? { experience: safePagination.sortOrder ?? "desc" }
+        : safePagination.sortBy === "createdAt"
+          ? { id: safePagination.sortOrder ?? "desc" }
+          : { rating: safePagination.sortOrder ?? "desc" };
 
     const [records, total] = await Promise.all([
       db.therapist.findMany({
         where,
         include: { user: { select: { id: true, name: true, email: true } } },
         orderBy,
-        skip: (pagination.page - 1) * pagination.limit,
-        take: pagination.limit,
+        skip: (safePagination.page - 1) * safePagination.limit,
+        take: safePagination.limit,
       }),
       db.therapist.count({ where }),
     ]);
@@ -175,9 +188,9 @@ export class TherapistRepository {
         user: r.user,
       })),
       total,
-      page: pagination.page,
-      limit: pagination.limit,
-      totalPages: Math.ceil(total / pagination.limit) || 1,
+      page: safePagination.page,
+      limit: safePagination.limit,
+      totalPages: Math.ceil(total / safePagination.limit) || 1,
     };
   }
 }

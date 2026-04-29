@@ -19,13 +19,16 @@ export class ValidationMiddleware {
         }
         if (schema.query) {
           const parsed = await schema.query.parseAsync(req.query);
-          Object.keys(req.query).forEach((key) => delete (req.query as any)[key]);
-          Object.assign(req.query, parsed);
+          Object.defineProperty(req, "query", {
+            value: parsed,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+          });
         }
         if (schema.params) {
           const parsed = await schema.params.parseAsync(req.params);
-          Object.keys(req.params).forEach((key) => delete (req.params as any)[key]);
-          Object.assign(req.params, parsed);
+          req.params = parsed as typeof req.params;
         }
         next();
       } catch (error: any) {

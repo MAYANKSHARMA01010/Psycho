@@ -29,7 +29,7 @@ export default function ClientSessionsPage() {
     setError(null);
     try {
       const res = await sessionsApi.history({ limit: 50 });
-      setItems(res.data.items ?? []);
+      setItems(res.data.items ?? res.data.sessions ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load sessions");
     } finally {

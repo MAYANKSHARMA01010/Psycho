@@ -15,6 +15,7 @@ import type {
   Subscription,
   Therapist,
   TreatmentPlan,
+  Transaction,
   WithdrawalRequest,
 } from "./types";
 
@@ -95,7 +96,7 @@ export const sessionsApi = {
   book: (body: { therapistId: string; slotId: string; type: "VIDEO" | "VOICE" | "CHAT" }) =>
     api.post<{ session: Session }>("/sessions", body),
   history: (q: { status?: string; page?: number; limit?: number } = {}) =>
-    api.get<{ items: Session[] }>("/sessions/history", { query: q }),
+    api.get<{ items?: Session[]; sessions?: Session[]; total?: number }>("/sessions/history", { query: q }),
   getById: (id: string) => api.get<{ session: Session }>(`/sessions/${id}`),
   confirm: (id: string) => api.patch<{ session: Session }>(`/sessions/${id}/confirm`),
   start: (id: string) => api.patch<{ session: Session }>(`/sessions/${id}/start`),
@@ -156,7 +157,7 @@ export const financialApi = {
   updateWithdrawal: (id: string, body: { status: "APPROVED" | "REJECTED" | "COMPLETED"; notes?: string }) =>
     api.patch<{ withdrawal: WithdrawalRequest }>(`/financial/withdrawals/${id}`, body),
   transactions: (q: { page?: number; limit?: number; status?: string } = {}) =>
-    api.get<{ payments: Payment[]; total: number }>("/financial/transactions", { query: q }),
+    api.get<{ transactions?: Transaction[]; payments?: Payment[]; total: number }>("/financial/transactions", { query: q }),
 };
 
 // ─── Assessment ──────────────────────────────────────────────────────

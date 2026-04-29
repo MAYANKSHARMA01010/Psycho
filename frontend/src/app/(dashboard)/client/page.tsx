@@ -26,7 +26,9 @@ export default function ClientDashboard() {
     ])
       .then(([sRes, aRes, nRes]) => {
         if (!active) return;
-        if (sRes.status === "fulfilled") setSessions(sRes.value.data.items ?? []);
+        if (sRes.status === "fulfilled") {
+          setSessions(sRes.value.data.items ?? sRes.value.data.sessions ?? []);
+        }
         if (aRes.status === "fulfilled")
           setAssessments(aRes.value.data.items ?? aRes.value.data.assessments ?? []);
         if (nRes.status === "fulfilled")

@@ -64,6 +64,17 @@ export type Payment = {
   updatedAt: string;
 };
 
+export type Transaction = {
+  id: string;
+  type: "PAYMENT" | "EARNING" | "WITHDRAWAL";
+  amount: number;
+  currency: string;
+  status: string;
+  description: string;
+  date: string;
+  metadata?: Record<string, unknown>;
+};
+
 export type Subscription = {
   id: string;
   clientId: string;
