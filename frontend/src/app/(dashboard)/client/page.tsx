@@ -1,85 +1,178 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { sessionsApi, assessmentApi, notificationApi } from "@/api/resources";
+import type { Session, Assessment, Notification } from "@/api/types";
+import { Card, StatCard } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge, EmptyState, ErrorMessage, Spinner } from "@/components/ui/Misc";
 
 export default function ClientDashboard() {
   const { user } = useAuth();
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    Promise.allSettled([
+      sessionsApi.history({ limit: 10 }),
+      assessmentApi.mine({ limit: 5 }),
+      notificationApi.mine({ limit: 5 }),
+    ])
+      .then(([sRes, aRes, nRes]) => {
+        if (!active) return;
+        if (sRes.status === "fulfilled") setSessions(sRes.value.data.items ?? []);
+        if (aRes.status === "fulfilled")
+          setAssessments(aRes.value.data.items ?? aRes.value.data.assessments ?? []);
+        if (nRes.status === "fulfilled")
+          setNotifications(nRes.value.data.items ?? nRes.value.data.notifications ?? []);
+
+        const errs = [sRes, aRes, nRes].filter(
+          (r) => r.status === "rejected",
+        ) as PromiseRejectedResult[];
+        if (errs.length === 3) setError(errs[0].reason?.message ?? "Could not load dashboard");
+      })
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const upcoming = sessions.filter((s) => ["PENDING", "CONFIRMED"].includes(s.status));
+  const completed = sessions.filter((s) => s.status === "COMPLETED");
+  const lastAssessment = assessments[0];
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 to-blue-700 p-8 text-white shadow-xl">
         <div className="relative z-10">
           <h1 className="text-3xl font-bold">Hello, {user?.name || "there"}!</h1>
-          <p className="mt-2 text-cyan-100 max-w-md">
-            Welcome to your wellness dashboard. Here you can manage your appointments, 
-            view your progress, and connect with your therapist.
+          <p className="mt-2 max-w-md text-cyan-100">
+            Track your wellness journey, book sessions, and stay connected with your therapist.
           </p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <button className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-cyan-700 shadow-sm hover:bg-cyan-50 transition">
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/client/therapists"
+              className="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:bg-cyan-50"
+            >
               Book a Session
-            </button>
-            <button className="rounded-xl bg-cyan-500/20 px-6 py-2.5 text-sm font-semibold text-white backdrop-blur-sm border border-white/20 hover:bg-cyan-500/30 transition">
-              View Journal
-            </button>
+            </Link>
+            <Link
+              href="/client/assessments"
+              className="rounded-xl border border-white/20 bg-cyan-500/20 px-5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-cyan-500/30"
+            >
+              Take Assessment
+            </Link>
           </div>
         </div>
-        
-        {/* Abstract shapes for premium feel */}
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-cyan-400/20 blur-2xl" />
       </section>
 
-      {/* Stats/Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: "Upcoming Session", value: "May 12, 4:00 PM", icon: "🗓️", color: "bg-blue-50" },
-          { label: "Wellness Progress", value: "On Track", icon: "📈", color: "bg-green-50" },
-          { label: "Unread Messages", value: "3 New", icon: "💬", color: "bg-purple-50" },
-        ].map((item, i) => (
-          <div key={i} className={`rounded-2xl border border-slate-100 p-6 shadow-sm transition hover:shadow-md ${item.color}`}>
-            <span className="text-2xl">{item.icon}</span>
-            <p className="mt-4 text-sm font-medium text-slate-500 uppercase tracking-wider">{item.label}</p>
-            <p className="mt-1 text-xl font-bold text-slate-900">{item.value}</p>
-          </div>
-        ))}
+      {error && <ErrorMessage message={error} />}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard
+          label="Upcoming Sessions"
+          value={loading ? "—" : upcoming.length}
+          accent="text-cyan-600"
+        />
+        <StatCard
+          label="Completed Sessions"
+          value={loading ? "—" : completed.length}
+          accent="text-emerald-600"
+        />
+        <StatCard
+          label="Last Assessment"
+          value={loading ? "—" : lastAssessment?.severity ?? "Not taken"}
+          hint={
+            lastAssessment
+              ? new Date(lastAssessment.completedAt).toLocaleDateString()
+              : "Take one to track progress"
+          }
+          accent="text-indigo-600"
+        />
       </div>
 
-      {/* Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Recent Activity</h2>
-          <div className="mt-6 space-y-6">
-            {[1, 2, 3].map((_, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="h-10 w-10 shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                  {i === 0 ? "🧘" : i === 1 ? "📝" : "📞"}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {i === 0 ? "Meditation session completed" : i === 1 ? "New journal entry added" : "Completed a 30m call with Dr. Sarah"}
-                  </p>
-                  <p className="text-xs text-slate-500">2 hours ago</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card
+          title="Upcoming Sessions"
+          action={
+            <Link
+              href="/client/sessions"
+              className="text-xs font-semibold text-cyan-700 hover:underline"
+            >
+              View all
+            </Link>
+          }
+          className="lg:col-span-2"
+        >
+          {loading ? (
+            <div className="flex items-center gap-2 text-slate-500">
+              <Spinner /> Loading…
+            </div>
+          ) : upcoming.length === 0 ? (
+            <EmptyState
+              title="No upcoming sessions"
+              description="Browse therapists and book your first session."
+              action={
+                <Link href="/client/therapists">
+                  <Button>Find a therapist</Button>
+                </Link>
+              }
+            />
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {upcoming.slice(0, 5).map((s) => (
+                <li key={s.id} className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {s.therapist?.user.name ?? "Therapist"}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(s.scheduledAt).toLocaleString()} · {s.type}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant={s.status === "CONFIRMED" ? "success" : "warn"}>
+                      {s.status}
+                    </Badge>
+                    <Link
+                      href={`/client/sessions/${s.id}`}
+                      className="text-xs font-semibold text-cyan-700 hover:underline"
+                    >
+                      Open
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Daily Mindfulness</h2>
-          <div className="mt-6">
-             <div className="aspect-video rounded-2xl bg-slate-100 flex items-center justify-center relative overflow-hidden group">
-                <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-slate-900/20 transition" />
-                <button className="h-14 w-14 rounded-full bg-white flex items-center justify-center shadow-lg relative z-10 transition group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-cyan-600 ml-1">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </button>
-             </div>
-             <p className="mt-4 text-sm font-medium text-slate-900 italic text-center">"The present moment is the only time over which we have any control."</p>
-          </div>
-        </div>
+        <Card title="Recent activity">
+          {loading ? (
+            <div className="flex items-center gap-2 text-slate-500">
+              <Spinner /> Loading…
+            </div>
+          ) : notifications.length === 0 ? (
+            <p className="text-sm text-slate-500">No notifications yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {notifications.slice(0, 5).map((n) => (
+                <li key={n.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                  <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                  <p className="text-xs text-slate-500">{n.message}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
       </div>
     </div>
   );
