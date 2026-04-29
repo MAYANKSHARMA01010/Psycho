@@ -100,7 +100,7 @@ export default function ClientSessionDetailPage() {
     <div className="space-y-6">
       <Link
         href="/client/sessions"
-        className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900"
+        className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900"
       >
         ← Back to sessions
       </Link>
@@ -109,13 +109,13 @@ export default function ClientSessionDetailPage() {
         <Card className="lg:col-span-1">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-lg font-semibold text-zinc-900">
                 {session.therapist?.user.name ?? "Therapist"}
               </h1>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-zinc-500">
                 {new Date(session.scheduledAt).toLocaleString()}
               </p>
-              <p className="mt-1 text-xs text-slate-500">Type: {session.type}</p>
+              <p className="mt-1 text-xs text-zinc-500">Type: {session.type}</p>
             </div>
             <Badge
               variant={
@@ -130,9 +130,9 @@ export default function ClientSessionDetailPage() {
             </Badge>
           </div>
           {session.notes && (
-            <div className="mt-4 rounded-xl bg-slate-50 p-3">
-              <p className="text-xs font-semibold text-slate-700">Therapist notes</p>
-              <p className="mt-1 text-xs text-slate-600 whitespace-pre-wrap">{session.notes}</p>
+            <div className="mt-4 rounded-lg bg-zinc-50 p-3">
+              <p className="text-xs font-medium text-zinc-700">Therapist notes</p>
+              <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600">{session.notes}</p>
             </div>
           )}
           {session.cancellationReason && (
@@ -150,7 +150,7 @@ export default function ClientSessionDetailPage() {
         <Card title="Conversation" className="lg:col-span-2 flex flex-col">
           <div ref={scrollRef} className="max-h-[60vh] min-h-[40vh] flex-1 space-y-2 overflow-y-auto pr-1">
             {messages.length === 0 ? (
-              <p className="text-sm text-slate-500">No messages yet. Say hello!</p>
+              <p className="text-sm text-zinc-500">No messages yet. Say hello!</p>
             ) : (
               messages.map((m) => {
                 const mine = m.senderId === user?.id;
@@ -160,12 +160,12 @@ export default function ClientSessionDetailPage() {
                     className={`flex ${mine ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                        mine ? "bg-cyan-600 text-white" : "bg-slate-100 text-slate-900"
+                      className={`max-w-[75%] rounded-lg px-3 py-2 text-sm shadow-sm ${
+                        mine ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-900"
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{m.content}</p>
-                      <p className={`mt-1 text-[10px] ${mine ? "text-cyan-100" : "text-slate-500"}`}>
+                      <p className={`mt-1 text-[10px] ${mine ? "text-zinc-300" : "text-zinc-500"}`}>
                         {new Date(m.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -182,8 +182,8 @@ export default function ClientSessionDetailPage() {
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Type a message…"
-              className="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+              placeholder="Type a message..."
+              className="flex-1 rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
             />
             <Button type="submit" loading={sending} disabled={!draft.trim()}>
               Send

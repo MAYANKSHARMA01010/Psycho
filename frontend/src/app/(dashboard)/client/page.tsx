@@ -19,7 +19,6 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
     Promise.allSettled([
       sessionsApi.history({ limit: 10 }),
       assessmentApi.mine({ limit: 5 }),
@@ -50,28 +49,27 @@ export default function ClientDashboard() {
 
   return (
     <div className="space-y-8">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 to-blue-700 p-8 text-white shadow-xl">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold">Hello, {user?.name || "there"}!</h1>
-          <p className="mt-2 max-w-md text-cyan-100">
+      <section className="rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Hello, {user?.name || "there"}!</h1>
+          <p className="mt-2 max-w-md text-zinc-600">
             Track your wellness journey, book sessions, and stay connected with your therapist.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/client/therapists"
-              className="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:bg-cyan-50"
+              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800"
             >
               Book a Session
             </Link>
             <Link
               href="/client/assessments"
-              className="rounded-xl border border-white/20 bg-cyan-500/20 px-5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-cyan-500/30"
+              className="rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50"
             >
               Take Assessment
             </Link>
           </div>
         </div>
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
       </section>
 
       {error && <ErrorMessage message={error} />}
@@ -80,7 +78,7 @@ export default function ClientDashboard() {
         <StatCard
           label="Upcoming Sessions"
           value={loading ? "—" : upcoming.length}
-          accent="text-cyan-600"
+          accent="text-zinc-900"
         />
         <StatCard
           label="Completed Sessions"
@@ -95,7 +93,7 @@ export default function ClientDashboard() {
               ? new Date(lastAssessment.completedAt).toLocaleDateString()
               : "Take one to track progress"
           }
-          accent="text-indigo-600"
+          accent="text-zinc-900"
         />
       </div>
 
@@ -105,7 +103,7 @@ export default function ClientDashboard() {
           action={
             <Link
               href="/client/sessions"
-              className="text-xs font-semibold text-cyan-700 hover:underline"
+              className="text-xs font-medium text-zinc-700 hover:underline"
             >
               View all
             </Link>
@@ -114,7 +112,7 @@ export default function ClientDashboard() {
         >
           {loading ? (
             <div className="flex items-center gap-2 text-slate-500">
-              <Spinner /> Loading…
+              <Spinner /> Loading...
             </div>
           ) : upcoming.length === 0 ? (
             <EmptyState
@@ -127,14 +125,14 @@ export default function ClientDashboard() {
               }
             />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-zinc-100">
               {upcoming.slice(0, 5).map((s) => (
                 <li key={s.id} className="flex items-center justify-between py-3">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-medium text-zinc-900">
                       {s.therapist?.user.name ?? "Therapist"}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-zinc-500">
                       {new Date(s.scheduledAt).toLocaleString()} · {s.type}
                     </p>
                   </div>
@@ -144,7 +142,7 @@ export default function ClientDashboard() {
                     </Badge>
                     <Link
                       href={`/client/sessions/${s.id}`}
-                      className="text-xs font-semibold text-cyan-700 hover:underline"
+                      className="text-xs font-medium text-zinc-700 hover:underline"
                     >
                       Open
                     </Link>
@@ -158,16 +156,16 @@ export default function ClientDashboard() {
         <Card title="Recent activity">
           {loading ? (
             <div className="flex items-center gap-2 text-slate-500">
-              <Spinner /> Loading…
+              <Spinner /> Loading...
             </div>
           ) : notifications.length === 0 ? (
-            <p className="text-sm text-slate-500">No notifications yet.</p>
+            <p className="text-sm text-zinc-500">No notifications yet.</p>
           ) : (
             <ul className="space-y-3">
               {notifications.slice(0, 5).map((n) => (
-                <li key={n.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                  <p className="text-sm font-semibold text-slate-900">{n.title}</p>
-                  <p className="text-xs text-slate-500">{n.message}</p>
+                <li key={n.id} className="rounded-lg border border-zinc-100 bg-zinc-50 p-3">
+                  <p className="text-sm font-medium text-zinc-900">{n.title}</p>
+                  <p className="text-xs text-zinc-500">{n.message}</p>
                 </li>
               ))}
             </ul>

@@ -236,18 +236,15 @@ export default function LoginPage() {
 
   return (
     <GuestGuard>
-      <main className="min-h-screen flex items-center justify-center overflow-hidden bg-slate-100 px-4 py-8 sm:px-6 relative">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-52 w-52 rounded-full bg-cyan-300/35 blur-3xl" />
-        <div className="pointer-events-none absolute -right-16 -bottom-16 h-60 w-60 rounded-full bg-amber-200/45 blur-3xl" />
-
-        <section className="relative w-full max-w-md rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)] backdrop-blur sm:p-8">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Welcome Back</p>
-          <h1 className="text-3xl font-semibold leading-tight text-slate-900">Sign in to Zenora</h1>
-          <p className="mt-2 text-sm text-slate-600">Continue with your account to access appointments and care history.</p>
+      <main className="relative flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-8 sm:px-6">
+        <section className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">Welcome Back</p>
+          <h1 className="text-3xl font-semibold leading-tight text-zinc-950">Sign in to Zenora</h1>
+          <p className="mt-2 text-sm text-zinc-600">Continue with your account to access appointments and care history.</p>
 
           <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-zinc-700">
                 Email address
               </label>
               <input
@@ -257,12 +254,12 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-zinc-700">
                 Password
               </label>
               <div className="relative">
@@ -273,12 +270,12 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 pr-20 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                  className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 pr-20 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2.5 py-1 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? "Hide" : "Show"}
@@ -287,7 +284,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <span className="mb-1.5 block text-sm font-medium text-slate-700">Login as</span>
+              <span className="mb-1.5 block text-sm font-medium text-zinc-700">Login as</span>
               <div className="grid grid-cols-3 gap-2">
                 {([
                   { value: "CLIENT", label: "Client" },
@@ -300,10 +297,10 @@ export default function LoginPage() {
                       key={option.value}
                       type="button"
                       onClick={() => setRole(option.value)}
-                      className={`rounded-xl border px-2 py-2 text-sm font-semibold transition ${
+                      className={`rounded-md border px-2 py-2 text-sm font-medium transition ${
                         isActive
-                          ? "border-cyan-600 bg-cyan-50 text-cyan-900"
-                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
                       }`}
                     >
                       {option.label}
@@ -316,16 +313,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-md bg-zinc-900 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
 
             <div className="relative py-1">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200" />
+                <span className="w-full border-t border-zinc-200" />
               </div>
-              <span className="relative flex justify-center text-xs font-medium uppercase tracking-widest text-slate-400">
+              <span className="relative flex justify-center text-xs font-medium uppercase tracking-wide text-zinc-400">
                 or
               </span>
             </div>
@@ -333,17 +330,17 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+              className="flex w-full items-center justify-center gap-2.5 rounded-md border border-zinc-300 bg-white py-2.5 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:bg-zinc-50"
             >
               <GoogleIcon />
               Continue with Google
             </button>
 
             <div className="flex items-center justify-between pt-1 text-sm">
-              <button type="button" onClick={handleForgotPassword} className="font-medium text-slate-600 transition hover:text-slate-900">
+              <button type="button" onClick={handleForgotPassword} className="font-medium text-zinc-600 transition hover:text-zinc-900">
                 Forgot password?
               </button>
-              <Link href="/" className="font-medium text-slate-600 transition hover:text-slate-900">
+              <Link href="/" className="font-medium text-zinc-600 transition hover:text-zinc-900">
                 Back to home
               </Link>
             </div>
@@ -351,18 +348,18 @@ export default function LoginPage() {
         </section>
 
         {showOnboarding ? (
-          <section className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 px-4">
-            <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-8">
+          <section className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-950/45 px-4">
+            <div className="w-full max-w-lg rounded-lg border border-zinc-200 bg-white p-6 shadow-2xl sm:p-8">
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">First Login Setup</p>
-                  <h2 className="mt-1 text-2xl font-semibold text-slate-900">Let us personalize your experience</h2>
-                  <p className="mt-2 text-sm text-slate-600">Step {onboardingStep} of 3</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">First Login Setup</p>
+                  <h2 className="mt-1 text-2xl font-semibold text-zinc-950">Let us personalize your experience</h2>
+                  <p className="mt-2 text-sm text-zinc-600">Step {onboardingStep} of 3</p>
                 </div>
                 <button
                   type="button"
                   onClick={handleSkipOnboarding}
-                  className="text-sm font-medium text-slate-500 transition hover:text-slate-800"
+                  className="text-sm font-medium text-zinc-500 transition hover:text-zinc-800"
                 >
                   Skip
                 </button>
@@ -370,7 +367,7 @@ export default function LoginPage() {
 
               {onboardingStep === 1 ? (
                 <div className="space-y-4">
-                  <label htmlFor="onboarding-name" className="block text-sm font-medium text-slate-700">
+                  <label htmlFor="onboarding-name" className="block text-sm font-medium text-zinc-700">
                     What should we call you?
                   </label>
                   <input
@@ -378,14 +375,14 @@ export default function LoginPage() {
                     value={onboarding.fullName}
                     onChange={(event) => setOnboarding((prev) => ({ ...prev, fullName: event.target.value }))}
                     placeholder="Your full name"
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                    className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                   />
                 </div>
               ) : null}
 
               {onboardingStep === 2 ? (
                 <div className="space-y-4">
-                  <label htmlFor="onboarding-goal" className="block text-sm font-medium text-slate-700">
+                  <label htmlFor="onboarding-goal" className="block text-sm font-medium text-zinc-700">
                     Primary care goal
                   </label>
                   <select
@@ -397,7 +394,7 @@ export default function LoginPage() {
                         careGoal: event.target.value as OnboardingProfile["careGoal"],
                       }))
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                    className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                   >
                     <option value="stress">Stress management</option>
                     <option value="sleep">Sleep improvement</option>
@@ -406,7 +403,7 @@ export default function LoginPage() {
                     <option value="other">Something else</option>
                   </select>
 
-                  <label htmlFor="onboarding-session" className="block text-sm font-medium text-slate-700">
+                  <label htmlFor="onboarding-session" className="block text-sm font-medium text-zinc-700">
                     Preferred session style
                   </label>
                   <select
@@ -418,7 +415,7 @@ export default function LoginPage() {
                         sessionStyle: event.target.value as OnboardingProfile["sessionStyle"],
                       }))
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                    className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                   >
                     <option value="video">Video sessions</option>
                     <option value="chat">Chat sessions</option>
@@ -429,7 +426,7 @@ export default function LoginPage() {
 
               {onboardingStep === 3 ? (
                 <div className="space-y-4">
-                  <label htmlFor="onboarding-reminder" className="block text-sm font-medium text-slate-700">
+                  <label htmlFor="onboarding-reminder" className="block text-sm font-medium text-zinc-700">
                     Reminder preference
                   </label>
                   <select
@@ -441,13 +438,13 @@ export default function LoginPage() {
                         reminderChannel: event.target.value as OnboardingProfile["reminderChannel"],
                       }))
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+                    className="w-full rounded-md border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                   >
                     <option value="email">Email reminders</option>
                     <option value="whatsapp">WhatsApp reminders</option>
                     <option value="none">No reminders</option>
                   </select>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-zinc-600">
                     You can change all onboarding preferences later from account settings.
                   </p>
                 </div>
@@ -458,7 +455,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleOnboardingBack}
                   disabled={onboardingStep === 1}
-                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Back
                 </button>
@@ -467,7 +464,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={handleOnboardingNext}
-                    className="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="rounded-md bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
                   >
                     Next
                   </button>
@@ -475,7 +472,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={handleFinishOnboarding}
-                    className="rounded-xl bg-cyan-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-600"
+                    className="rounded-md bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
                   >
                     Finish Setup
                   </button>

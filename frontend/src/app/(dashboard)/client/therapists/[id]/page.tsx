@@ -65,7 +65,7 @@ export default function TherapistDetailPage() {
   if (error || !therapist) {
     return (
       <div className="space-y-4">
-        <Link href="/client/therapists" className="text-sm font-medium text-slate-500 hover:text-slate-900">
+        <Link href="/client/therapists" className="text-sm font-medium text-zinc-500 hover:text-zinc-900">
           ← Back to therapists
         </Link>
         <ErrorMessage message={error ?? "Therapist not found"} />
@@ -81,7 +81,7 @@ export default function TherapistDetailPage() {
     <div className="space-y-6">
       <Link
         href="/client/therapists"
-        className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900"
+        className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900"
       >
         ← Back to therapists
       </Link>
@@ -90,44 +90,44 @@ export default function TherapistDetailPage() {
         <Card className="lg:col-span-2">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{user?.name ?? "Therapist"}</h1>
-              <p className="text-sm text-slate-500">{therapist.specialization}</p>
-              <p className="mt-1 text-xs text-slate-400">{user?.email}</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">{user?.name ?? "Therapist"}</h1>
+              <p className="text-sm text-zinc-500">{therapist.specialization}</p>
+              <p className="mt-1 text-xs text-zinc-400">{user?.email}</p>
             </div>
             {therapist.isVerified && <Badge variant="success">Verified</Badge>}
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-slate-600">
+          <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-zinc-600">
             <span>
-              <strong className="text-slate-900">{therapist.rating.toFixed(1)}</strong>★ (
+              <strong className="text-zinc-900">{therapist.rating.toFixed(1)}</strong>★ (
               {therapist.totalRatings} reviews)
             </span>
             <span>{therapist.experience} years experience</span>
             <span>{therapist.hourlyRate ? `₹${therapist.hourlyRate}/hour` : "Pricing TBD"}</span>
           </div>
           {therapist.languages?.length ? (
-            <p className="mt-3 text-xs text-slate-600">
+            <p className="mt-3 text-xs text-zinc-600">
               Languages: <strong>{therapist.languages.join(", ")}</strong>
             </p>
           ) : null}
           {therapist.bio && (
-            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+            <div className="mt-4 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-700">
               {therapist.bio}
             </div>
           )}
         </Card>
 
         <Card title="Book a session">
-          <label className="mb-2 block text-xs font-semibold text-slate-600">Type</label>
+          <label className="mb-2 block text-xs font-medium text-zinc-600">Type</label>
           <div className="mb-4 grid grid-cols-3 gap-2">
             {(["VIDEO", "VOICE", "CHAT"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-lg border px-2 py-2 text-xs font-semibold transition ${
+                className={`rounded-md border px-2 py-2 text-xs font-medium transition ${
                   type === t
-                    ? "border-cyan-600 bg-cyan-50 text-cyan-900"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "border-zinc-900 bg-zinc-900 text-white"
+                    : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50"
                 }`}
               >
                 {t.charAt(0) + t.slice(1).toLowerCase()}
@@ -135,7 +135,7 @@ export default function TherapistDetailPage() {
             ))}
           </div>
 
-          <label className="mb-2 block text-xs font-semibold text-slate-600">Available slots</label>
+          <label className="mb-2 block text-xs font-medium text-zinc-600">Available slots</label>
           {futureOpenSlots.length === 0 ? (
             <EmptyState title="No open slots" description="Check back later." />
           ) : (
@@ -149,10 +149,10 @@ export default function TherapistDetailPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedSlot(s.id)}
-                      className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${
+                      className={`w-full rounded-md border px-3 py-2 text-left text-xs transition ${
                         active
-                          ? "border-cyan-600 bg-cyan-50 text-cyan-900"
-                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
                       }`}
                     >
                       <span className="font-semibold">

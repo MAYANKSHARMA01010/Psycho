@@ -5,18 +5,18 @@ type Size = "sm" | "md";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed",
+    "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed",
   secondary:
-    "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed",
+    "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 disabled:opacity-60 disabled:cursor-not-allowed",
   ghost:
-    "text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed",
+    "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-60 disabled:cursor-not-allowed",
   danger:
     "bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-60 disabled:cursor-not-allowed",
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-xs",
-  md: "px-4 py-2 text-sm",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-4 text-sm",
 };
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -40,7 +40,7 @@ export function Button({
     <button
       {...rest}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold shadow-sm transition active:scale-[0.98] ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 active:scale-[0.99] ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
     >
       {loading ? (
         <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />

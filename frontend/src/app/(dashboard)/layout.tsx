@@ -40,15 +40,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div className="flex min-h-screen flex-col bg-zinc-50">
+        <header className="sticky top-0 z-30 w-full border-b border-zinc-200 bg-white/85 backdrop-blur">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <Link href={`/${role.toLowerCase()}`} className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-cyan-600 flex items-center justify-center">
-                  <span className="text-white font-bold">Z</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-900">
+                  <span className="text-sm font-bold text-white">Z</span>
                 </div>
-                <span className="text-xl font-bold text-slate-900 tracking-tight">Zenora</span>
+                <span className="text-xl font-semibold tracking-tight text-zinc-900">Zenora</span>
               </Link>
             </div>
 
@@ -61,10 +61,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                       active
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                     }`}
                   >
                     {item.label}
@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3">
               <Link
                 href="/notifications"
-                className="rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+                className="rounded-md p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
                 title="Notifications"
               >
                 <svg
@@ -96,15 +96,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
               <Link
                 href="/account"
-                className="text-right hidden sm:flex flex-col rounded-lg px-2 py-1 hover:bg-slate-100"
+                className="hidden flex-col rounded-md px-2 py-1 text-right hover:bg-zinc-100 sm:flex"
                 title="My account"
               >
-                <span className="text-sm font-semibold text-slate-900">{user?.name || "User"}</span>
-                <span className="text-xs text-slate-500 capitalize">{role.toLowerCase()}</span>
+                <span className="text-sm font-medium text-zinc-900">{user?.name || "User"}</span>
+                <span className="text-xs capitalize text-zinc-500">{role.toLowerCase()}</span>
               </Link>
               <button
                 onClick={() => logout()}
-                className="rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition"
+                className="rounded-md bg-zinc-100 p-2 text-zinc-600 transition hover:bg-zinc-200 hover:text-zinc-900"
                 title="Logout"
               >
                 <svg
@@ -126,13 +126,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Mobile-friendly nav */}
-          <div className="md:hidden border-t border-slate-100 bg-white">
+          <div className="border-t border-zinc-100 bg-white md:hidden">
             <div className="container mx-auto flex gap-1 overflow-x-auto px-3 py-2 text-sm">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  className="whitespace-nowrap rounded-md px-3 py-1.5 font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 >
                   {item.label}
                 </Link>

@@ -56,8 +56,8 @@ export default function TherapistsBrowsePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Find a therapist</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">Find a therapist</h1>
+        <p className="text-sm text-zinc-500">
           Browse verified therapists and book a session that fits your schedule.
         </p>
       </header>
@@ -65,39 +65,39 @@ export default function TherapistsBrowsePage() {
       <Card>
         <form className="grid grid-cols-1 gap-4 md:grid-cols-5" onSubmit={onSubmit}>
           <input
-            placeholder="Search name, bio…"
+            placeholder="Search name, bio..."
             value={filters.search}
             onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+            className="rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
           />
           <input
             placeholder="Specialization (e.g. anxiety)"
             value={filters.specialization}
             onChange={(e) => setFilters((p) => ({ ...p, specialization: e.target.value }))}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+            className="rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
           />
           <input
             placeholder="Language (e.g. en)"
             value={filters.language}
             onChange={(e) => setFilters((p) => ({ ...p, language: e.target.value }))}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+            className="rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
           />
           <select
             value={filters.minRating}
             onChange={(e) => setFilters((p) => ({ ...p, minRating: e.target.value }))}
-            className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
+            className="rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:bg-white focus:ring-2 focus:ring-zinc-200"
           >
             <option value="">Any rating</option>
             <option value="3">3+ stars</option>
             <option value="4">4+ stars</option>
             <option value="4.5">4.5+ stars</option>
           </select>
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-zinc-700">
             <input
               type="checkbox"
               checked={filters.onlyAvailable}
               onChange={(e) => setFilters((p) => ({ ...p, onlyAvailable: e.target.checked }))}
-              className="h-4 w-4 rounded border-slate-300"
+              className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
             />
             Has availability
           </label>
@@ -110,8 +110,8 @@ export default function TherapistsBrowsePage() {
       {error && <ErrorMessage message={error} />}
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-slate-500">
-          <Spinner /> <span className="ml-2">Searching…</span>
+        <div className="flex items-center justify-center py-12 text-zinc-500">
+          <Spinner /> <span className="ml-2">Searching...</span>
         </div>
       ) : items.length === 0 ? (
         <EmptyState title="No therapists found" description="Try loosening your filters." />
@@ -121,18 +121,18 @@ export default function TherapistsBrowsePage() {
             <Card key={t.id}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{t.user?.name ?? "Therapist"}</h3>
-                  <p className="text-sm text-slate-500">{t.specialization}</p>
+                  <h3 className="text-base font-semibold text-zinc-900">{t.user?.name ?? "Therapist"}</h3>
+                  <p className="text-sm text-zinc-500">{t.specialization}</p>
                 </div>
                 {t.isVerified && <Badge variant="success">Verified</Badge>}
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-600">
-                <span><strong className="text-slate-900">{t.rating.toFixed(1)}</strong>★ ({t.totalRatings})</span>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-zinc-600">
+                <span><strong className="text-zinc-900">{t.rating.toFixed(1)}</strong>★ ({t.totalRatings})</span>
                 <span>{t.experience} yr exp</span>
                 {t.hourlyRate ? <span>₹{t.hourlyRate}/hr</span> : <span>Pricing TBD</span>}
               </div>
               {t.bio && (
-                <p className="mt-3 line-clamp-3 text-xs text-slate-500">{t.bio}</p>
+                <p className="mt-3 line-clamp-3 text-xs text-zinc-500">{t.bio}</p>
               )}
               <div className="mt-4 flex justify-end">
                 <Link href={`/client/therapists/${t.id}`}>
