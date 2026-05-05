@@ -54,6 +54,6 @@
     "nodemon": "latest",
     "ts-jest": "^29.4.9",
     "tsx": "latest",
-    "typescript": "~5.8.0"
+    "typescript": "~6.0.3"
   }
 }
